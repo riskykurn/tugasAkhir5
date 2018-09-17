@@ -3,7 +3,7 @@
 //jadi yang baru itu MYSQLI
         //mysqli itu biasanya harus ditampung
                      //$host, $user, $password, $database
-$link = @mysqli_connect("localhost", "root", "mysql", "tugasakhir");
+$link = @mysqli_connect("localhost", "root", "", "tugasakhir");
 //@ untuk menghilangkan warning bila gagal connect
 
 //UNTUK MENGECEK SUDAH CONNECT APA BELUM

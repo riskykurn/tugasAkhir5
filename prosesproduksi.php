@@ -179,7 +179,7 @@ require 'db.php';
             <!--</form>-->
           </div>
         </div>
-      </div>
+      </div> 
 
       <div class="col-md-8" id="divMenambahProses" style="display: none">
         <div class="widget widget-blue">
@@ -211,15 +211,19 @@ require 'db.php';
         <h3><i class="fa fa-dropbox"></i><strong> URUTAN PROSES PRODUKSI DARI KERUPUK </strong></h3>
       </div>
       <div class="widget-content">
+        <form action="action_ubah.php?cmd=updateTabelProses" method="post">
         <div id="tabelTampilProses">
           
         </div>
+        </form>
       </div>
     </div>
     </div>
   </div>
+
+
 <div id="tabelModalProses">
-  
+ 
 </div>
 <?php
   if(isset($_SESSION['pesan'])){
@@ -262,9 +266,14 @@ require 'db.php';
 <script src='assets/js/plugins/jquery.bootstrap.wizard.min.js'></script>
 <script src='assets/js/plugins/jscrollpane.min.js'></script>
 <script src='assets/js/application.js'></script>
+<script src='assets/js/html5sortable.min.js'></script>
+
 
 <script src='assets/js/template_js/forms.js'></script>
 <script type="text/javascript">
+
+    $("#sort tbody").sortable().disableSelection(); 
+
     function loading(name){
       $(name).html('<br><img src="assets/images/load.gif" width="30px"><br>');
     } 
@@ -296,6 +305,8 @@ require 'db.php';
         function (data) {
           // alert(data);
           $('#tabelModalProses').html(data);
+
+          $("#sort tbody").sortable().disableSelection(); 
         });
       }
     }

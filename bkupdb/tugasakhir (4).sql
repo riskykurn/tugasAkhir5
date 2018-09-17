@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 01, 2018 at 05:19 AM
+-- Generation Time: Sep 17, 2018 at 04:07 PM
 -- Server version: 10.1.21-MariaDB
 -- PHP Version: 5.6.30
 
@@ -41,7 +41,7 @@ CREATE TABLE `bahanbaku` (
 INSERT INTO `bahanbaku` (`idBB`, `nama`, `harga_beli`, `stok`, `idSatuan`) VALUES
 (3, 'Tepung Gaplek: Premium', 700000, 25, 1),
 (4, 'Tepung Terigu: Rajaku', 660000, 120, 1),
-(5, 'Masako', 1000, 351, 6),
+(5, 'Masako', 1000, 359, 6),
 (6, 'Tepung Kanji: Cap Dara', 550000, 100, 1),
 (7, 'Sumbo / Pewarna', 2300, 350, 6),
 (8, 'Sajikuh', 1000, 250, 6),
@@ -64,7 +64,7 @@ CREATE TABLE `bahanbaku_has_barang` (
 --
 
 INSERT INTO `bahanbaku_has_barang` (`bahanbaku_idBB`, `barang_idBarang`, `jumlah`) VALUES
-(3, 1, 3),
+(3, 1, 4),
 (3, 2, 5),
 (3, 8, 2),
 (5, 1, 5),
@@ -221,6 +221,21 @@ CREATE TABLE `keranjangbelanja` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `konversi`
+--
+
+CREATE TABLE `konversi` (
+  `idKonversi` int(11) NOT NULL,
+  `dari_satuan` int(11) NOT NULL,
+  `ke_satuan` int(11) NOT NULL,
+  `nilai` int(11) NOT NULL,
+  `tipe` tinyint(4) NOT NULL,
+  `satuan_idSatuan` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `lahan`
 --
 
@@ -315,7 +330,22 @@ INSERT INTO `nota_beli` (`idBeli`, `tgl_beli`, `tgl_bayar`, `status_bayar`, `tot
 (68, '2018-08-07', '0000-00-00', 1, 20000, 2, 1),
 (69, '2018-08-08', '0000-00-00', 1, 1400000, 3, 0),
 (70, '2018-08-31', '0000-00-00', 1, 0, 1, 0),
-(71, '2018-08-31', '0000-00-00', 1, 402375, 4, 0);
+(71, '2018-08-31', '0000-00-00', 1, 402375, 4, 0),
+(72, '2018-09-05', '0000-00-00', 1, 2500, 2, 0),
+(73, '2018-09-07', '0000-00-00', 0, 0, 4, 0),
+(74, '2018-09-07', '0000-00-00', 0, 0, 3, 0),
+(75, '2018-09-07', '0000-00-00', 0, 0, 2, 0),
+(76, '2018-09-07', '0000-00-00', 0, 0, 1, 0),
+(77, '2018-09-07', '0000-00-00', 0, 880000, 4, 0),
+(78, '2018-09-12', '0000-00-00', 0, 0, 4, 0),
+(79, '2018-09-12', '0000-00-00', 0, 0, 4, 0),
+(80, '2018-09-12', '0000-00-00', 0, 0, 1, 0),
+(81, '2018-09-12', '0000-00-00', 0, 0, 1, 0),
+(82, '2018-09-12', '0000-00-00', 0, 0, 3, 0),
+(83, '2018-09-12', '0000-00-00', 0, 4050000, 1, 0),
+(84, '2018-09-12', '0000-00-00', 0, 0, 2, 1),
+(85, '2018-09-12', '0000-00-00', 0, 4252375, 3, 0),
+(86, '2018-09-12', '0000-00-00', 0, 1205000, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -328,74 +358,85 @@ CREATE TABLE `nota_beli_has_bahanbaku` (
   `bahanbaku_idBB` int(11) NOT NULL,
   `jumlah` int(11) NOT NULL,
   `validasi` tinyint(1) NOT NULL,
-  `harga_sekarang` double NOT NULL
+  `harga_sekarang` double NOT NULL,
+  `sudah_tertambah` tinyint(4) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `nota_beli_has_bahanbaku`
 --
 
-INSERT INTO `nota_beli_has_bahanbaku` (`nota_beli_idBeli`, `bahanbaku_idBB`, `jumlah`, `validasi`, `harga_sekarang`) VALUES
-(43, 5, 55, 1, 0),
-(44, 4, 15, 1, 0),
-(44, 6, 12, 1, 0),
-(49, 5, 2, 1, 475),
-(49, 6, 16, 1, 0),
-(49, 7, 20, 1, 0),
-(49, 8, 40, 1, 500),
-(49, 9, 100, 1, 0),
-(50, 6, 2, 0, 60000),
-(51, 3, 15, 1, 0),
-(51, 5, 5, 1, 500),
-(51, 6, 6, 1, 0),
-(52, 3, 15, 1, 85000),
-(52, 5, 15, 1, 0),
-(52, 7, 15, 1, 0),
-(52, 9, 15, 1, 0),
-(53, 3, 5, 1, 350000),
-(53, 4, 5, 1, 0),
-(53, 9, 5, 1, 0),
-(54, 3, 5, 1, 85000),
-(54, 4, 5, 1, 50000),
-(54, 9, 5, 1, 0),
-(55, 8, 10, 1, 500),
-(55, 9, 10, 1, 0),
-(56, 3, 5, 1, 85000),
-(56, 9, 5, 1, 0),
-(57, 3, 2, 1, 350000),
-(57, 9, 10, 1, 0),
-(58, 7, 20, 1, 0),
-(58, 8, 80, 1, 0),
-(58, 9, 100, 1, 0),
-(59, 3, 10, 1, 0),
-(59, 5, 20, 1, 500),
-(60, 3, 20, 1, 85000),
-(60, 4, 2, 1, 50000),
-(60, 9, 99, 1, 0),
-(61, 6, 16, 1, 60000),
-(61, 7, 20, 1, 0),
-(61, 8, 80, 1, 0),
-(61, 9, 20, 1, 0),
-(62, 3, 5, 1, 85000),
-(62, 5, 15, 1, 0),
-(63, 3, 2, 1, 350000),
-(63, 4, 2, 1, 0),
-(63, 7, 4, 1, 0),
-(63, 8, 4, 1, 500),
-(63, 9, 4, 1, 0),
-(64, 5, 15, 1, 0),
-(64, 8, 10, 1, 0),
-(64, 9, 10, 1, 0),
-(65, 5, 5, 0, 0),
-(66, 5, 6, 1, 500),
-(66, 9, 100, 1, 0),
-(67, 3, 15, 1, 85000),
-(67, 5, 55, 1, 0),
-(67, 9, 20, 1, 0),
-(68, 5, 20, 1, 500),
-(69, 3, 2, 0, 350000),
-(71, 4, 5, 0, 80000),
-(71, 5, 5, 0, 475);
+INSERT INTO `nota_beli_has_bahanbaku` (`nota_beli_idBeli`, `bahanbaku_idBB`, `jumlah`, `validasi`, `harga_sekarang`, `sudah_tertambah`) VALUES
+(43, 5, 55, 1, 0, 0),
+(44, 4, 15, 1, 0, 0),
+(44, 6, 12, 1, 0, 0),
+(49, 5, 2, 1, 475, 0),
+(49, 6, 16, 1, 0, 0),
+(49, 7, 20, 1, 0, 0),
+(49, 8, 40, 1, 500, 0),
+(49, 9, 100, 1, 0, 0),
+(50, 6, 2, 1, 60000, 0),
+(51, 3, 15, 1, 0, 0),
+(51, 5, 5, 1, 500, 0),
+(51, 6, 6, 1, 0, 0),
+(52, 3, 15, 1, 85000, 0),
+(52, 5, 15, 1, 0, 0),
+(52, 7, 15, 1, 0, 0),
+(52, 9, 15, 1, 0, 0),
+(53, 3, 5, 1, 350000, 0),
+(53, 4, 5, 1, 0, 0),
+(53, 9, 5, 1, 0, 0),
+(54, 3, 5, 1, 85000, 0),
+(54, 4, 5, 1, 50000, 0),
+(54, 9, 5, 1, 0, 0),
+(55, 8, 10, 1, 500, 0),
+(55, 9, 10, 1, 0, 0),
+(56, 3, 5, 1, 85000, 0),
+(56, 9, 5, 1, 0, 0),
+(57, 3, 2, 1, 350000, 0),
+(57, 9, 10, 1, 0, 0),
+(58, 7, 20, 1, 0, 0),
+(58, 8, 80, 1, 0, 0),
+(58, 9, 100, 1, 0, 0),
+(59, 3, 10, 1, 0, 0),
+(59, 5, 20, 1, 500, 0),
+(60, 3, 20, 1, 85000, 0),
+(60, 4, 2, 1, 50000, 0),
+(60, 9, 99, 1, 0, 0),
+(61, 6, 16, 1, 60000, 0),
+(61, 7, 20, 1, 0, 0),
+(61, 8, 80, 1, 0, 0),
+(61, 9, 20, 1, 0, 0),
+(62, 3, 5, 1, 85000, 0),
+(62, 5, 15, 1, 0, 0),
+(63, 3, 2, 1, 350000, 0),
+(63, 4, 2, 1, 0, 0),
+(63, 7, 4, 1, 0, 0),
+(63, 8, 4, 1, 500, 0),
+(63, 9, 4, 1, 0, 0),
+(64, 5, 15, 1, 0, 0),
+(64, 8, 10, 1, 0, 0),
+(64, 9, 10, 1, 0, 0),
+(65, 5, 5, 1, 0, 0),
+(66, 5, 6, 1, 500, 0),
+(66, 9, 100, 1, 0, 0),
+(67, 3, 15, 1, 85000, 0),
+(67, 5, 55, 1, 0, 0),
+(67, 9, 20, 1, 0, 0),
+(68, 5, 20, 1, 500, 0),
+(69, 3, 2, 1, 350000, 0),
+(71, 4, 5, 1, 80000, 0),
+(71, 5, 3, 1, 475, 1),
+(72, 5, 5, 1, 500, 1),
+(77, 4, 11, 0, 80000, 0),
+(81, 3, 23, 0, 85000, 0),
+(82, 3, 23, 0, 350000, 0),
+(83, 4, 15, 0, 50000, 0),
+(83, 6, 55, 0, 60000, 0),
+(84, 6, 153, 0, 65000, 0),
+(85, 3, 12, 0, 350000, 0),
+(85, 5, 5, 0, 475, 0),
+(85, 8, 100, 0, 500, 0);
 
 -- --------------------------------------------------------
 
@@ -499,12 +540,14 @@ INSERT INTO `pemasok_has_bahanbaku` (`pemasok_idSupplier`, `bahanbaku_idBB`, `le
 (1, 3, 4, 85000),
 (1, 4, 3, 50000),
 (1, 6, 4, 60000),
-(2, 5, 1, 500),
+(2, 5, 4, 500),
+(2, 6, 3, 65000),
 (3, 3, 4, 350000),
 (3, 5, 2, 475),
 (3, 8, 1, 500),
 (4, 4, 7, 80000),
-(4, 5, 1, 475);
+(4, 5, 1, 500),
+(4, 9, 1, 800);
 
 -- --------------------------------------------------------
 
@@ -516,6 +559,7 @@ CREATE TABLE `prosesproduksi` (
   `idProsesproduksi` int(11) NOT NULL,
   `nama` varchar(45) NOT NULL,
   `lama_proses` int(11) NOT NULL,
+  `urutan` int(11) NOT NULL,
   `mesin_idMesin` int(11) NOT NULL,
   `barang_idBarang` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -524,10 +568,12 @@ CREATE TABLE `prosesproduksi` (
 -- Dumping data for table `prosesproduksi`
 --
 
-INSERT INTO `prosesproduksi` (`idProsesproduksi`, `nama`, `lama_proses`, `mesin_idMesin`, `barang_idBarang`) VALUES
-(3, 'Mengeringkan Kerupuks', 5, 1, 1),
-(4, 'Mengemas Kerupuk', 2, 2, 1),
-(6, 'Mengirimkan Kerupuk', 2, 1, 2);
+INSERT INTO `prosesproduksi` (`idProsesproduksi`, `nama`, `lama_proses`, `urutan`, `mesin_idMesin`, `barang_idBarang`) VALUES
+(3, 'Mengeringkan Kerupuks', 5, 1, 1, 1),
+(4, 'Mengemas Kerupuk', 2, 2, 2, 1),
+(6, 'Mengirimkan Kerupuk', 2, 1, 1, 2),
+(8, 'Mengirimkan Kerupuk', 2, 3, 1, 1),
+(11, 'Proses X', 2, 4, 2, 1);
 
 -- --------------------------------------------------------
 
@@ -579,12 +625,14 @@ INSERT INTO `spk` (`idSpk`, `tgl_spk`, `tgl_perencanaan`, `rencana_produksi`, `s
 (2, '2018-07-29', '2018-08-17', 55, 0, 1, 1, 1),
 (5, '2018-08-07', '2018-08-09', 2323, 0, 1, 1, 1),
 (6, '2018-08-07', '2018-08-31', 69, 0, 8, 2, 1),
-(7, '2018-08-07', '2018-08-31', 51, 0, 1, 1, 0),
+(7, '2018-08-07', '2018-09-03', 51, 0, 1, 1, 0),
 (8, '2018-08-07', '2018-08-30', 69, 0, 7, 2, 1),
 (9, '2018-08-07', '2017-11-25', 23, 0, 8, 1, 0),
 (10, '2018-08-07', '2018-08-31', 51, 0, 3, 2, 1),
 (11, '2018-08-10', '2018-10-10', 12, 0, 1, 2, 1),
-(12, '2018-08-16', '2018-08-31', 12, 0, 1, 2, 0);
+(12, '2018-08-16', '2018-08-31', 12, 0, 1, 2, 0),
+(13, '2018-09-13', '2018-09-14', 21, 0, 2, 1, 1),
+(14, '2018-09-13', '2018-09-21', 5, 0, 2, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -736,6 +784,12 @@ ALTER TABLE `keranjangbelanja`
   ADD KEY `fk_keranjangbelanja_nota_jual1_idx` (`nota_jual_idJual`);
 
 --
+-- Indexes for table `konversi`
+--
+ALTER TABLE `konversi`
+  ADD PRIMARY KEY (`idKonversi`);
+
+--
 -- Indexes for table `lahan`
 --
 ALTER TABLE `lahan`
@@ -858,7 +912,7 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `bahanbaku`
 --
 ALTER TABLE `bahanbaku`
-  MODIFY `idBB` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `idBB` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 --
 -- AUTO_INCREMENT for table `barang`
 --
@@ -880,6 +934,11 @@ ALTER TABLE `jadwalproduksi`
 ALTER TABLE `jenis`
   MODIFY `idJenis` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 --
+-- AUTO_INCREMENT for table `konversi`
+--
+ALTER TABLE `konversi`
+  MODIFY `idKonversi` int(11) NOT NULL AUTO_INCREMENT;
+--
 -- AUTO_INCREMENT for table `lahan`
 --
 ALTER TABLE `lahan`
@@ -898,7 +957,7 @@ ALTER TABLE `mesin`
 -- AUTO_INCREMENT for table `nota_beli`
 --
 ALTER TABLE `nota_beli`
-  MODIFY `idBeli` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
+  MODIFY `idBeli` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=87;
 --
 -- AUTO_INCREMENT for table `nota_jual`
 --
@@ -918,7 +977,7 @@ ALTER TABLE `pemasok`
 -- AUTO_INCREMENT for table `prosesproduksi`
 --
 ALTER TABLE `prosesproduksi`
-  MODIFY `idProsesproduksi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `idProsesproduksi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 --
 -- AUTO_INCREMENT for table `satuan`
 --
@@ -928,7 +987,7 @@ ALTER TABLE `satuan`
 -- AUTO_INCREMENT for table `spk`
 --
 ALTER TABLE `spk`
-  MODIFY `idSpk` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `idSpk` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 --
 -- AUTO_INCREMENT for table `tenagakerja`
 --

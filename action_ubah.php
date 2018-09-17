@@ -533,7 +533,15 @@ case "updateTabelProses":
 $urutan = 1;
 foreach ($_POST['urutanId'] as $id) {
 	//query update urutan, idnya $id
-	$urutan++
+	$sql = "UPDATE prosesproduksi SET urutan=".$urutan." where idProsesproduksi= ".$id;
+	//echo $sql;
+	$result = mysqli_query($link, $sql);
+	if($result){
+		$_SESSION['pesan']="Berhasil mengubah urutan Proses!";
+		header("Location: prosesproduksi.php");
+		die();
+	}
+	$urutan++;
 }
 break;
 

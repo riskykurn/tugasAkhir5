@@ -333,7 +333,6 @@ $idKerupuk = $_POST['idKerupuk'];
   <table class="table table-bordered table-hover" id="sorttable">
     <thead>
       <tr style="text-align: center;font-weight: bold;">
-        <td> Urutan ke- </td>
         <td> Nama Proses </td>
         <td> Lama Proses (Jam)</td>
         <td> Menggunakan Mesin </td>
@@ -342,23 +341,21 @@ $idKerupuk = $_POST['idKerupuk'];
     </thead>
     <tbody>
       <?php
-      $sql = "SELECT b.nama as nama_barang, p.nama as nama_proses, p.lama_proses as lama_proses, m.nama as nama_mesin, p.idProsesproduksi as id_produksi
+      $sql = "SELECT b.nama as nama_barang, p.nama as nama_proses, p.lama_proses as lama_proses, m.nama as nama_mesin, p.idProsesproduksi as id_produksi, p.urutan as urutan
       FROM barang b INNER JOIN prosesproduksi p
       on b.idBarang = p.barang_idBarang
       INNER JOIN mesin m
       on p.mesin_idMesin = m.idMesin
-      WHERE b.idBarang =".$idKerupuk;
+      WHERE b.idBarang =$idKerupuk
+      order by urutan asc";
 
       $result = mysqli_query($link, $sql);
       if(!$result){
         die("<br/>SQL error_log(message)r : " . $sql);
       }
-      $no=0;
       while ($row = mysqli_fetch_array($result)) {
-        $no++;
         ?>
         <tr style="text-align: center;"">
-        <td><?php echo $no; ?></td>
         <td>
         <?php echo $row['nama_proses']; ?>
         <input type="hidden" name="urutanId[]" value="<?php echo $row['id_produksi']; ?>">

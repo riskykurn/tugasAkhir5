@@ -529,6 +529,14 @@ case "ubahProses":
  	}
 break;
 
+case "updateTabelProses":
+$urutan = 1;
+foreach ($_POST['urutanId'] as $id) {
+	//query update urutan, idnya $id
+	$urutan++
+}
+break;
+
 //UBAH SPK
 case "ubahSPK":
 	$idSpk = $_POST['uID'];

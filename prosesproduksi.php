@@ -179,20 +179,7 @@ require 'db.php';
             <!--</form>-->
           </div>
         </div>
-      </div>
-
-       <table class="grid" id="sort" title="Kurt Vonnegut novels">  
-<thead>  
-<tr><th>Year</th><th>Title</th><th>Grade</th></tr>  
-</thead>  
-<tbody>  
-<tr><td>1969</td><td>Slaughterhouse-Five</td><td>A+</td></tr>  
-<tr><td>1952</td><td>Player Piano</td><td>B</td></tr>  
-<tr><td>1963</td><td>Cat’s Cradle</td><td>A+</td></tr>  
-<tr><td>1973</td><td>Breakfast of Champions</td><td>C</td></tr>  
-<tr><td>1965</td><td>God Bless You, Mr. Rosewater</td><td>A</td></tr>  
-</tbody>  
-</table> 
+      </div> 
 
       <div class="col-md-8" id="divMenambahProses" style="display: none">
         <div class="widget widget-blue">

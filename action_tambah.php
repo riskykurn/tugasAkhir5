@@ -800,15 +800,14 @@ case "tambahProses":
 	    die();
     } 
     else{
-    	$sql2= "SELECT p.*,
-			(
-		        SELECT urutan from prosesproduksi where barang_idBarang=$idKerupuk order by urutan desc limit 1
-		        ) as urutanTerakhir
-		from prosesproduksi p where barang_idBarang = $idKerupuk";
+    	$sql2= "SELECT max(p.urutan) as urutan
+				FROM barang b inner join prosesproduksi p
+					on b.idBarang = p.barang_idBarang
+				where b.idBarang =$idKerupuk";
 		$result2= mysqli_query($link,$sql2);
 	    $urutan = 0;
 	    while ($row2 = mysqli_fetch_array($result2)) {
-	    	$urutan = $row2['urutanTerakhir'];
+	    	$urutan = $row2['urutan'];
 	    }
 	    $urutan+=1;
 	    if($result2){

@@ -1,12 +1,6 @@
 <?php
-session_start(); 
-require 'db.php'; 
-
-if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSION['login'] == '' || $_SESSION['login'] == null){
-  $_SESSION['pesan'] = "Anda Belum Login";
-  header("Location: login.php");
-  exit();
-}
+session_start();
+require 'db.php';  
 ?>
 <!DOCTYPE html>
 <html>
@@ -91,20 +85,18 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
           <img src="assets/images/avatar-small.jpg" alt="">
         </div>
         <div class="user-name-w">
-          
-        <?php echo $_SESSION['namaUmkm']; ?> : (<?php echo $_SESSION['log_nama']; ?>) 
-        <i class="fa fa-caret-down"></i>
+          Lionel Messi <i class="fa fa-caret-down"></i>
         </div>
       </a>
       <ul class="dropdown-menu dropdown-inbar">
         <li><a href="gantipassword.php"><i class="fa fa-unlock-alt"></i> Ganti Password </a></li>
-        <li><a href="login.php?logout=1"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
+        <li><a href="#"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
       </ul>
     </div>
   </div>
   <a class="current logo hidden-xs" href="index.php" data-toggle="tooltip" data-placement="right" title="" data-original-title="Halaman Depan"><i class="fa fa-home"></i></a>
   <a class="menu-toggler" href="#" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Tampilkan / Hilangkan"><i class="fa fa-bars"></i></a>
-  <h1>Menu Utama: Jenis Kerupuk</h1>
+  <h1> MENU PRODUKSI : Proses Produksi </h1>
 </div>
   <div class="side">
   <div class="sidebar-wrapper">
@@ -114,12 +106,12 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
         <i class="fa fa-home"></i>
       </a>
     </li>
-    <li class='current'>
+    <li >
       <a class='current' href="pemasok.php" data-toggle="tooltip" data-placement="right" title="" data-original-title="Menu Utama">
         <i class="fa fa-th-large"></i>
       </a>
     </li>
-    <li>
+    <li class='current'>
       <a href="bom.php" data-toggle="tooltip" data-placement="right" title="" data-original-title="Menu Produksi">
         <i class="fa fa-book"></i>
       </a>
@@ -128,22 +120,17 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
 </div>
   <div class="sub-sidebar-wrapper">
   <ul>
-    <li><a href="pemasok.php">Pemasok</a></li>
-    <li><a href="karyawan.php">Karyawan</a></li>
-    <li><a href="bahanbaku.php">Bahan Baku</a></li>
-    <ul><li><a href="satuan.php">Satuan BB</a></li></ul>
-    <li><a href="kerupuk.php">Kerupuk</a></li>
-    <ul><li class='current'><a href="jenis.php">Jenis Kerupuk</a></li></ul>
-    <li><a href="mesin.php">Mesin</a></li>
-    <li><a href="listrik.php">Tarif Listrik / KWH<br>(Saat ini)</a></li>
+    <li><a href="bom.php">Resep</a></li>
+    <li class='current'><a href="prosesproduksi.php">Proses Produksi</a></li>
+    <li><a href="pembelian.php" style="font-size: 0.94em">Pembelian Bahan Baku</a></li>
+    <li><a href="spk.php" style="font-size: 0.985em">Surat Perintah Kerja</a></li>
   </ul>
 </div>
   </div>
   <div class="main-content">
   <ol class="breadcrumb">
-  <li><a href="#">Menu Utama</a></li>
-  <li><a href="kerupuk.php">Kerupuk</a></li>
-  <li class="active">Jenis Kerupuk</li>
+  <li><a href="#">Menu Produksi</a></li>
+  <li class="active">Proses Produksi</li>
   </ol>
   <!-- not necessary
     <div class="alert alert-warning alert-dismissable bottom-margin">
@@ -152,165 +139,124 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
     </div>
   -->
     <div class="row">
-      <div class="col-md-12">
+<div class="col-md-4">
         <div class="widget widget-blue">
           <div class="widget-title">
             <div class="widget-controls">
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a> 
+  <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
-            <h3><i class="fa fa-plus-circle"></i> Tambah Jenis Kerupuk</h3>
+            <h3><i class="fa fa-dropbox"></i> Proses Produksi Dari Kerupuk </h3>
           </div>
           <div class="widget-content">
-            <form action="action_tambah.php?cmd=tambahJenis" method="POST" role="form">
+            <!--<form action="action_tambah.php?cmd=tambahJenisKerupuk" method="POST" role="form">-->
               <div class="row">
                 <div class="col-md-12">
+                <div class="alert alert-warning alert-dismissable bottom-margin">
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                  <i class="fa fa-exclamation-circle"></i><strong> Pertama, </strong> Pilih terlebih dahulu kerupuk dibawah ini untuk dibuatkan proses produksinya.
+                  </div>
                   <div class="form-group">
-                    <label>Jenis Kerupuk</label>
-                    <input type="text" name="uJenis" class="form-control">
+                    <label>Daftar Kerupuk</label>
+                    <select id="uKerupuk" class="form-control" name="uKerupuk" onchange="tampilProses(this.value)">
+                    <option value=""> -- DAFTAR KERUPUK -- </option>
+                      <?php
+                    $sql = "select * from barang";
+                    $result = mysqli_query($link, $sql);
+
+                    while($row = mysqli_fetch_array($result)){
+                      echo '<option value= "'. $row['idBarang'] .'">' . $row['nama'] . '</option>';
+                    } 
+                    ?>
+                      </select>
                   </div>
                 </div>
               </div>
               <div class="text-right">
-              <input type="reset" class="btn btn-default" value="Batal">
-              <button class="btn btn-primary">Simpan</button>
+              <button type="button" onclick="tambahProses($('#uKerupuk').val())" class="btn btn-iconed btn-primary"><i class="fa fa-plus-circle"></i> Tambah Proses Produksi </button>
+              <span class="help-block" >*Jika proses produksi masih kosong / kurang, tekan tombol ini*</span>
               </div>
-            </form>
+            <!--</form>-->
+          </div>
+        </div>
+      </div> 
+
+      <div class="col-md-8" id="divMenambahProses" style="display: none">
+        <div class="widget widget-blue">
+          <div class="widget-title">
+            <div class="widget-controls">
+  <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
+  <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
+  <a href="#" class="widget-control widget-control-refresh" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tampilkan Ulang"><i class="fa fa-refresh"></i></a>
+  <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
+</div>
+            <h3><i class="fa fa-plus-circle"></i> Mengisikan Proses Produksi Kerupuk </h3>
+          </div>
+          <div class="widget-content">
+            <div id="tabelTambahProses"> 
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      </div>
 
     <div class="widget widget-blue">
       <div class="widget-title">
               <div class="widget-controls">
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a> 
+  <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
+  <a href="#" class="widget-control widget-control-refresh" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tampilkan Ulang"><i class="fa fa-refresh"></i></a>
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
-        <h3><i class="fa fa-asterisk"></i><strong> Data Jenis Kerupuk </strong></h3>
+        <h3><i class="fa fa-dropbox"></i><strong> URUTAN PROSES PRODUKSI DARI KERUPUK </strong></h3>
       </div>
       <div class="widget-content">
-        <div class="table-responsive">
-        <table class="table table-bordered table-hover">
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Nama</th>
-              <th class="text-right">Tindakan</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php
-            $sql = "SELECT * FROM jenis
-            order by idJenis desc";
-
-                $result = mysqli_query($link, $sql);
-            if(!$result){
-                die("<br/>SQL error_log(message)r : " . $sql);
-            }
-            $no=0;
-            while ($row = mysqli_fetch_array($result)) {
-              $no++;
-            ?>
-              <tr>
-                <td><?php echo $no; ?></td>
-                <td><?php echo $row['jenis']; ?></td>
-                <td class="text-right">
-                  <a href="#modalUbah_<?php echo $row['idJenis']; ?>" class="btn btn-round btn-default btn-xs" data-toggle="modal">Ubah</a>
-                <a href="#modalHapus_<?php echo $row['idJenis']; ?>" class="btn btn-round btn-danger btn-xs" data-toggle="modal">Hapus</a>
-                </td>
-              </tr>
-            <?php } ?>
-          </tbody>
-        </table>
+        <form action="action_ubah.php?cmd=updateTabelProses" method="post">
+        <div id="tabelTampilProses">
+          
         </div>
+        </form>
       </div>
     </div>
     </div>
   </div>
 
-<!-- Pengulangan query, di while lg, modalnya ga kebaca -->
-  <?php
-  $sql = "SELECT * FROM jenis
-            order by idJenis desc";
-  $result = mysqli_query($link, $sql);
-  if(!$result){
-      die("<br/>SQL error_log(message)r : " . $sql);
-  }
-  $no=0;
-  while ($row = mysqli_fetch_array($result)) {
-      $no++;
-  ?>
-  <div class="modal fade" id="modalUbah_<?php echo $row['idJenis']; ?>" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
+
+<div id="tabelModalProses">
+ 
+</div>
+
+<div class="modal fade" id="modalInfo" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="widget widget-blue">
-        <div class="widget-title">
-          <div class="widget-controls">
-            <a href="#" class="widget-control " data-dismiss="modal"><i class="fa fa-times-circle"></i></a>
+          <div class="widget-title">
+            <div class="widget-controls">
+              <a href="#" class="widget-control " data-dismiss="modal"><i class="fa fa-times-circle"></i></a>
+            </div>
+            <h3><i class="fa fa-info-circle"></i><strong>Informasi Mengenai Urutan Proses</strong></h3>
           </div>
-          <h3><i class="fa fa-ok-circle"></i> <strong>UBAH JENIS KERUPUK: </strong> <?php echo $row['jenis']; ?></h3>
-        </div>
-        <div class="widget-content">
-          <div class="modal-body">
-            <form action="action_ubah.php?cmd=ubahJenis" method="POST" role="form">
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>Jenis Kerupuk</label>
-                    <input type="text" name="uJenis" value= "<?php echo $row['jenis']; ?>" class="form-control">
+          <div class="widget-content">
+            <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="alert alert-warning alert-dismissable bottom-margin">
+                      <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
+                      <i class="fa fa-exclamation-circle"></i> <strong>Info!</strong> Urutan proses produksi dimulai dari atas hingga akhir. Untuk melakukan pengurutan proses produksi anda dapat melakukan dengan cara: <strong>Drag / Geser</strong> kolom dari data proses produksi didalam tabel. Setelah urutan dirasa benar, jangan lupa klik <strong> Simpan Urutan</strong><br>
+                      <span class="help-block" style="color: red">*Apabila tidak bisa drag / geser, tekan menu 'Proses Produksi' dari panel kiri untuk melakukan penyegaran halaman*</span>
+                    </div>
+                  </div>
+                  <div class="col-md-12 text-right">
+                    <button class="btn btn-primary" data-dismiss="modal">Mengerti</button>
                   </div>
                 </div>
-              </div>
-              <div class="text-right">
-              <input type="hidden" name="uID" value= "<?php echo $row['idJenis']; ?>">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
-              <button class="btn btn-primary">Ubah</button>
-              </div>
-            </form>
+            </div>
           </div>
         </div>
-      </div>
     </div>
   </div>
 </div>
-
-<div class="modal fade" id="modalHapus_<?php echo $row['idJenis']; ?>" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="widget widget-blue">
-        <div class="widget-title">
-          <div class="widget-controls">
-            <a href="#" class="widget-control " data-dismiss="modal"><i class="fa fa-times-circle"></i></a>
-          </div>
-          <h3><i class="fa fa-ok-circle"></i> <strong>HAPUS JENIS KERUPUK: </strong> <?php echo $row['jenis']; ?></h3>
-        </div>
-        <div class="widget-content">
-          <div class="modal-body">
-            <form action="action_hapus.php?cmd=hapusJenis" method="POST" role="form">
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="alert alert-warning alert-dismissable bottom-margin">
-                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
-                  <i class="fa fa-exclamation-circle"></i> <strong>Peringatan!</strong> Anda akan menghapus Jenis Kerupuk : <u><?php echo $row['jenis'];?></u>. Data yang dihapus tidak dapat dikembalikan lagi.
-                  </div>
-                </div>
-                <div class="col-md-12 text-right">
-                  <input type="hidden" name="uID" value= "<?php echo $row['idJenis']; ?>">
-                  <button class="btn btn-default" data-dismiss="modal">Batal</button>
-                  <button class="btn btn-danger">Hapus Data</button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<?php } ?>
 <?php
   if(isset($_SESSION['pesan'])){
       echo "<script type='text/javascript'>alert('" . $_SESSION['pesan'] ."')</script>";
@@ -352,10 +298,51 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
 <script src='assets/js/plugins/jquery.bootstrap.wizard.min.js'></script>
 <script src='assets/js/plugins/jscrollpane.min.js'></script>
 <script src='assets/js/application.js'></script>
+<script src='assets/js/html5sortable.min.js'></script>
+
 
 <script src='assets/js/template_js/forms.js'></script>
+<script type="text/javascript">
 
+    $("#sort tbody").sortable().disableSelection(); 
 
+    function loading(name){
+      $(name).html('<br><img src="assets/images/load.gif" width="30px"><br>');
+    } 
+    function tambahProses(idKerupuk){
+      if(idKerupuk != ""){
+        loading('#tabelTambahProses');
+        $('#divMenambahProses').show(500);
+        $.post('action_tampung.php', 
+        {idKerupuk : idKerupuk, cmd : 'tambahProses' }, 
+        function (data) {
+          // alert(data);
+          $('#tabelTambahProses').html(data);
+        });
+      }
+    } 
+
+    function tampilProses(idKerupuk){
+      if(idKerupuk != ""){
+        loading('#tabelTampilProses');
+        $.post('action_tampung.php', 
+        {idKerupuk : idKerupuk, cmd : 'tampilProses' }, 
+        function (data) {
+          // alert(data);
+          $('#tabelTampilProses').html(data);
+        });
+
+        $.post('action_tampung.php', 
+        {idKerupuk : idKerupuk, cmd : 'tabelModalProses' }, 
+        function (data) {
+          // alert(data);
+          $('#tabelModalProses').html(data);
+
+          $("#sort tbody").sortable().disableSelection(); 
+        });
+      }
+    }
+
+</script>
 </body>
-
 </html>

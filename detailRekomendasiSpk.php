@@ -2,6 +2,12 @@
 session_start();
 require 'db.php'; 
 
+if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSION['login'] == '' || $_SESSION['login'] == null){
+  $_SESSION['pesan'] = "Anda Belum Login";
+  header("Location: login.php");
+  exit();
+}
+
 $sqlData="SELECT spk.idSpk as id, nj.idJual as nota_jual, nj.tanggal as tanggal_nota, spk.tgl_spk as tglSpk, spk.tgl_perencanaan as tglRencana, spk.rencana_produksi as rencana, spk.status as status, p.namaPelanggan as pelanggan, b.nama as nama_barang, b.idBarang as idBarang
   FROM barang b inner join spk
     on b.idBarang = spk.barang_idBarang
@@ -117,12 +123,14 @@ $stokKurang = ($r_data2['jumlah'] * $r_data['rencana']) - $r_data2['stok'];
           <img src="assets/images/avatar-small.jpg" alt="">
         </div>
         <div class="user-name-w">
-          Lionel Messi <i class="fa fa-caret-down"></i>
+          
+        <?php echo $_SESSION['namaUmkm']; ?> : (<?php echo $_SESSION['log_nama']; ?>) 
+        <i class="fa fa-caret-down"></i>
         </div>
       </a>
       <ul class="dropdown-menu dropdown-inbar">
         <li><a href="gantipassword.php"><i class="fa fa-unlock-alt"></i> Ganti Password </a></li>
-        <li><a href="#"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
+        <li><a href="login.php?logout=1"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
       </ul>
     </div>
   </div>
@@ -179,10 +187,9 @@ $stokKurang = ($r_data2['jumlah'] * $r_data['rencana']) - $r_data2['stok'];
               <div class="widget-controls">
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
   <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-refresh" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tampilkan Ulang"><i class="fa fa-refresh"></i></a>
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
-        <h3><i class="fa fa-bitbucket"></i><strong> Rekomendasi Beli Bahan Baku Untuk : </strong><?php echo $r_data['nama_barang']; ?> / <?php echo $r_data['tglSpk']; ?></h3>
+        <h3><i class="fa fa-bitbucket"></i><strong> Rekomendasi Beli Bahan Baku Untuk : </strong><?php echo $r_data['nama_barang']; ?> / <?php echo date('d-M-Y', strtotime($r_data['tglSpk'])); ?></h3>
       </div>
       <div class="widget-content">
       <div>
@@ -192,7 +199,10 @@ $stokKurang = ($r_data2['jumlah'] * $r_data['rencana']) - $r_data2['stok'];
           $sql = "SELECT s.idspk, p.idSupplier as idSupplier, p.nama as namaSupplier, mn3.leadtime as leadtime, S.tgl_perencanaan as tglRencana, DATE_SUB(CURDATE(), INTERVAL - mn3.leadtime DAY) as tglSampai, mn3.harga_beli as hargaSupplier, bb.nama as namaBB, 
             (
               SELECT phb.`harga_beli` FROM `pemasok_has_bahanbaku` phb WHERE phb.`bahanbaku_idBB`=bb.`idBB` ORDER BY phb.`harga_beli` asc LIMIT 1
-            ) as harga_rendah
+            ) as harga_rendah,
+            (
+              SELECT phb.`leadtime` FROM `pemasok_has_bahanbaku` phb WHERE phb.`bahanbaku_idBB`=bb.`idBB` ORDER BY phb.`leadtime` asc LIMIT 1
+            ) as lead_rendah
             FROM barang_has_nota_jual mn inner join barang b
               on mn.barang_idBarang = b.idBarang
             inner join spk s
@@ -205,7 +215,7 @@ $stokKurang = ($r_data2['jumlah'] * $r_data['rencana']) - $r_data2['stok'];
               on bb.idBB = mn3.bahanbaku_idBB
             inner join pemasok p 
               on mn3.pemasok_idSupplier = p.idSupplier
-            where mn.nota_jual_idJual = $idJual and bb.idBB = $idBB and s.idSpk = $idSpk
+            where mn.nota_jual_idJual = 1 and bb.idBB = 6 and s.idSpk = 9
             GROUP BY p.idSupplier
             order by p.nama";
 
@@ -255,13 +265,13 @@ $stokKurang = ($r_data2['jumlah'] * $r_data['rencana']) - $r_data2['stok'];
                               } 
                               ?></td>
                               <td><?php 
-                              if($row['tglSampai'] > $row['tglRencana']){
+                              if($row['leadtime'] != $row['lead_rendah']){
                                 ?>
                                 <i class="fa fa-thumbs-down" style="color:red"></i> <?php echo $row['leadtime']; ?> hari<?php
                               }
                               else{
                                 ?>
-                                <i class="fa fa-thumbs-up" style="color:blue"> <?php echo $row['leadtime']; ?> hari</i><?php
+                                <?php echo $row['leadtime']; ?> hari</i><?php
                               } 
                               ?></td>
                               </td>
@@ -330,6 +340,7 @@ $stokKurang = ($r_data2['jumlah'] * $r_data['rencana']) - $r_data2['stok'];
                   <input type="hidden" name="uIDJual" value= "<?php echo $idJual; ?>">
                   <input type="hidden" value="<?php echo $stokKurang; ?>" name="uStokKurang">
                   <input type="hidden" value="<?php echo $idBB; ?>" name="uIDBB">
+                  <input type="hidden" value="<?php echo $idSpk; ?>" name="uIDSPK">
                   <input type="hidden" value="<?php echo $rowModal['hargaSupplier']; ?>" name="uHargaSupplier">
                   <button class="btn btn-default" data-dismiss="modal">Batal</button>
                   <button class="btn btn-primary"> Pilih Pemasok </button>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 17, 2018 at 04:07 PM
+-- Generation Time: Oct 20, 2018 at 04:51 AM
 -- Server version: 10.1.21-MariaDB
 -- PHP Version: 5.6.30
 
@@ -39,13 +39,13 @@ CREATE TABLE `bahanbaku` (
 --
 
 INSERT INTO `bahanbaku` (`idBB`, `nama`, `harga_beli`, `stok`, `idSatuan`) VALUES
-(3, 'Tepung Gaplek: Premium', 700000, 25, 1),
+(3, 'Tepung Gaplek: Premium', 700000, 263, 1),
 (4, 'Tepung Terigu: Rajaku', 660000, 120, 1),
-(5, 'Masako', 1000, 359, 6),
-(6, 'Tepung Kanji: Cap Dara', 550000, 100, 1),
+(5, 'Masako', 1000, 469, 6),
+(6, 'Tepung Kanji: Cap Dara', 550000, 122, 1),
 (7, 'Sumbo / Pewarna', 2300, 350, 6),
 (8, 'Sajikuh', 1000, 250, 6),
-(9, 'Telur', 1400, 170, 5);
+(9, 'Telur', 1400, 25, 5);
 
 -- --------------------------------------------------------
 
@@ -90,9 +90,11 @@ CREATE TABLE `bahanbaku_has_spk` (
 --
 
 INSERT INTO `bahanbaku_has_spk` (`bahanbaku_idBB`, `spk_idSpk`, `sisa`, `jumlah_digunakan`) VALUES
-(3, 12, 0, 36),
-(5, 12, 0, 65),
-(8, 12, 0, 120);
+(3, 12, 2, 48),
+(3, 14, 0, 25),
+(5, 12, 10, 60),
+(8, 12, 0, 120),
+(9, 14, 0, 75);
 
 -- --------------------------------------------------------
 
@@ -114,7 +116,7 @@ CREATE TABLE `barang` (
 
 INSERT INTO `barang` (`idBarang`, `nama`, `stok`, `harga_jual`, `idJenis`) VALUES
 (1, 'Tiga Bersaudara', 20, 55000, 4),
-(2, 'Ratu Jerebet', 13, 71000, 2),
+(2, 'Ratu Jerebet', 28, 71000, 2),
 (3, 'Tunggal Serunuk', 8, 44000, 4),
 (4, 'Cap Kembar', 10, 88000, 1),
 (7, 'Nama tolong diperbaiki', 24, 12321, 1),
@@ -170,16 +172,31 @@ CREATE TABLE `jadwalproduksi` (
   `idJadwalproduksi` int(11) NOT NULL,
   `tgl_mulai` date NOT NULL,
   `tgl_selesai` date NOT NULL,
-  `tgl_mulai_real` date NOT NULL,
-  `tgl_selesai_real` date NOT NULL,
-  `hasil_produksi` int(11) NOT NULL,
+  `tgl_mulai_real` date DEFAULT NULL,
+  `tgl_selesai_real` date DEFAULT NULL,
+  `keterangan` varchar(100) DEFAULT NULL,
+  `biaya_lain` double DEFAULT NULL,
+  `status_mesin` tinyint(4) NOT NULL,
+  `jam_mesin` int(11) DEFAULT NULL,
   `hargaperkwh` double NOT NULL,
-  `sewa_lahan` tinyint(4) NOT NULL,
-  `lahan_idLahan` int(11) NOT NULL,
   `listrik_idListrik` int(11) NOT NULL,
   `spk_idSpk` int(11) NOT NULL,
   `prosesproduksi_idProsesproduksi` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `jadwalproduksi`
+--
+
+INSERT INTO `jadwalproduksi` (`idJadwalproduksi`, `tgl_mulai`, `tgl_selesai`, `tgl_mulai_real`, `tgl_selesai_real`, `keterangan`, `biaya_lain`, `status_mesin`, `jam_mesin`, `hargaperkwh`, `listrik_idListrik`, `spk_idSpk`, `prosesproduksi_idProsesproduksi`) VALUES
+(102, '2018-09-26', '2018-09-27', '2018-09-27', '2018-10-12', 'asdas', 223, 2, 0, 0, 1, 12, 3),
+(103, '2018-09-26', '2018-09-26', '2018-09-27', '2018-10-10', 'asd', 22, 3, 0, 0, 1, 12, 12),
+(104, '2018-09-26', '2018-09-26', '2018-09-27', '2018-10-17', 'qwe', 23, 0, 0, 0, 1, 12, 13),
+(105, '2018-09-26', '2018-09-26', '2018-09-27', '2018-10-31', '23', 23, 1, 0, 0, 1, 12, 8),
+(114, '2018-10-10', '2018-10-10', '2018-10-10', '2018-10-11', '', 0, 0, 0, 0, 1, 14, 15),
+(115, '2018-10-10', '2018-10-10', '2018-10-10', '2018-10-11', '', 0, 0, 0, 0, 1, 14, 17),
+(116, '2018-10-10', '2018-10-10', NULL, NULL, '', 0, 0, 0, 0, 1, 14, 14),
+(117, '2018-10-10', '2018-10-10', '2018-10-10', '2018-10-31', '', 0, 1, 0, 0, 1, 14, 16);
 
 -- --------------------------------------------------------
 
@@ -229,29 +246,18 @@ CREATE TABLE `konversi` (
   `dari_satuan` int(11) NOT NULL,
   `ke_satuan` int(11) NOT NULL,
   `nilai` int(11) NOT NULL,
-  `tipe` tinyint(4) NOT NULL,
-  `satuan_idSatuan` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `lahan`
---
-
-CREATE TABLE `lahan` (
-  `idLahan` int(11) NOT NULL,
-  `nama` varchar(50) NOT NULL,
-  `biaya_sewa` double NOT NULL
+  `tipe` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `lahan`
+-- Dumping data for table `konversi`
 --
 
-INSERT INTO `lahan` (`idLahan`, `nama`, `biaya_sewa`) VALUES
-(1, 'Pekarangan pak subagio', 1550000),
-(2, 'Depan Halaman bu hajar', 900000);
+INSERT INTO `konversi` (`idKonversi`, `dari_satuan`, `ke_satuan`, `nilai`, `tipe`) VALUES
+(1, 1, 2, 1000, 1),
+(2, 2, 1, 1000, 0),
+(3, 1, 4, 50, 1),
+(4, 1, 1, 5, 0);
 
 -- --------------------------------------------------------
 
@@ -263,6 +269,13 @@ CREATE TABLE `listrik` (
   `idListrik` int(11) NOT NULL,
   `hargaperkwh` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `listrik`
+--
+
+INSERT INTO `listrik` (`idListrik`, `hargaperkwh`) VALUES
+(1, 1299);
 
 -- --------------------------------------------------------
 
@@ -281,6 +294,7 @@ CREATE TABLE `mesin` (
 --
 
 INSERT INTO `mesin` (`idMesin`, `nama`, `watt`) VALUES
+(0, '*Tidak pakai mesin*', 0),
 (1, 'Oven', 1500),
 (2, 'Bolier', 5500),
 (3, 'Mixer', 1000);
@@ -345,7 +359,26 @@ INSERT INTO `nota_beli` (`idBeli`, `tgl_beli`, `tgl_bayar`, `status_bayar`, `tot
 (83, '2018-09-12', '0000-00-00', 0, 4050000, 1, 0),
 (84, '2018-09-12', '0000-00-00', 0, 0, 2, 1),
 (85, '2018-09-12', '0000-00-00', 0, 4252375, 3, 0),
-(86, '2018-09-12', '0000-00-00', 0, 1205000, 1, 1);
+(86, '2018-09-12', '0000-00-00', 0, 1205000, 1, 1),
+(87, '2018-09-28', '2018-10-02', 1, 11554750, 3, 0),
+(88, '2018-10-02', '0000-00-00', 1, 0, 2, 1),
+(89, '2018-10-02', '0000-00-00', 1, 0, 2, 1),
+(90, '2018-10-02', '0000-00-00', 0, 0, 3, 1),
+(91, '2018-10-02', '2018-10-30', 1, 0, 4, 0),
+(92, '2018-10-11', '0000-00-00', 0, 130000, 3, 0),
+(93, '2018-10-11', '0000-00-00', 0, 0, 4, 0),
+(94, '2018-10-11', '0000-00-00', 0, 0, 3, 0),
+(95, '2018-10-11', '0000-00-00', 0, 130000, 3, 0),
+(96, '2018-10-11', '0000-00-00', 0, 0, 4, 0),
+(97, '2018-10-11', '0000-00-00', 0, 0, 2, 0),
+(98, '2018-10-11', '0000-00-00', 0, 130000, 3, 0),
+(99, '2018-10-11', '0000-00-00', 0, 130000, 3, 0),
+(100, '2018-10-11', '0000-00-00', 0, 130000, 3, 0),
+(101, '2018-10-09', '0000-00-00', 0, 50000, 4, 0),
+(102, '2018-10-11', '0000-00-00', 0, 0, 3, 1),
+(103, '2018-10-11', '0000-00-00', 0, 0, 2, 1),
+(104, '2018-10-11', '0000-00-00', 0, 0, 3, 1),
+(105, '2018-10-15', '0000-00-00', 0, 1430000, 2, 0);
 
 -- --------------------------------------------------------
 
@@ -436,7 +469,16 @@ INSERT INTO `nota_beli_has_bahanbaku` (`nota_beli_idBeli`, `bahanbaku_idBB`, `ju
 (84, 6, 153, 0, 65000, 0),
 (85, 3, 12, 0, 350000, 0),
 (85, 5, 5, 0, 475, 0),
-(85, 8, 100, 0, 500, 0);
+(85, 8, 100, 0, 500, 0),
+(87, 3, 33, 0, 350000, 0),
+(87, 5, 10, 0, 475, 0),
+(92, 8, 260, 0, 500, 0),
+(95, 8, 260, 1, 500, 0),
+(98, 8, 260, 0, 500, 0),
+(99, 8, 260, 0, 500, 0),
+(100, 8, 260, 0, 500, 0),
+(101, 5, 100, 1, 500, 1),
+(105, 6, 22, 1, 65000, 1);
 
 -- --------------------------------------------------------
 
@@ -448,6 +490,14 @@ CREATE TABLE `nota_beli_has_spk` (
   `nota_beli_idBeli` int(11) NOT NULL,
   `spk_idSpk` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `nota_beli_has_spk`
+--
+
+INSERT INTO `nota_beli_has_spk` (`nota_beli_idBeli`, `spk_idSpk`) VALUES
+(97, 7),
+(100, 7);
 
 -- --------------------------------------------------------
 
@@ -513,7 +563,7 @@ CREATE TABLE `pemasok` (
 --
 
 INSERT INTO `pemasok` (`idSupplier`, `nama`, `alamat`, `telp`, `kota`, `deleted`) VALUES
-(1, 'Sumber Agungz', 'Sukodono', '085446799255', 'Sidoarjo', 0),
+(1, 'Sumber Agung', 'Sukodono', '085446799255', 'Sidoarjo', 0),
 (2, 'Kencono Sejahtera', 'Sepanjang', '0852301571241', 'Sidoarjo', 0),
 (3, 'Satrio Bina Nusantara', 'Kejambon', '0315911577', 'Surabaya', 0),
 (4, 'Djiebrats', 'Wisma Mandala', '085123123213', 'Gresik', 0),
@@ -558,7 +608,6 @@ INSERT INTO `pemasok_has_bahanbaku` (`pemasok_idSupplier`, `bahanbaku_idBB`, `le
 CREATE TABLE `prosesproduksi` (
   `idProsesproduksi` int(11) NOT NULL,
   `nama` varchar(45) NOT NULL,
-  `lama_proses` int(11) NOT NULL,
   `urutan` int(11) NOT NULL,
   `mesin_idMesin` int(11) NOT NULL,
   `barang_idBarang` int(11) NOT NULL
@@ -568,12 +617,16 @@ CREATE TABLE `prosesproduksi` (
 -- Dumping data for table `prosesproduksi`
 --
 
-INSERT INTO `prosesproduksi` (`idProsesproduksi`, `nama`, `lama_proses`, `urutan`, `mesin_idMesin`, `barang_idBarang`) VALUES
-(3, 'Mengeringkan Kerupuks', 5, 1, 1, 1),
-(4, 'Mengemas Kerupuk', 2, 2, 2, 1),
-(6, 'Mengirimkan Kerupuk', 2, 1, 1, 2),
-(8, 'Mengirimkan Kerupuk', 2, 3, 1, 1),
-(11, 'Proses X', 2, 4, 2, 1);
+INSERT INTO `prosesproduksi` (`idProsesproduksi`, `nama`, `urutan`, `mesin_idMesin`, `barang_idBarang`) VALUES
+(3, 'Mengeringkan Kerupuk', 2, 2, 1),
+(8, 'Mengirimkan Kerupuk', 3, 1, 1),
+(12, 'Mengemas Kerupuk', 4, 3, 1),
+(13, 'Membuat Adonan', 1, 0, 1),
+(14, 'Mengeringkan Kerupuks', 3, 1, 2),
+(15, 'Membuat adonan', 1, 0, 2),
+(16, 'Mengemas Kerupuk', 4, 1, 2),
+(17, 'Mencampur adonan', 2, 0, 2),
+(18, '23', 1, 0, 4);
 
 -- --------------------------------------------------------
 
@@ -610,7 +663,10 @@ CREATE TABLE `spk` (
   `idSpk` int(11) NOT NULL,
   `tgl_spk` date NOT NULL,
   `tgl_perencanaan` date NOT NULL,
+  `tgl_mulai_real` date DEFAULT NULL,
+  `tgl_selesai_real` date DEFAULT NULL,
   `rencana_produksi` int(11) NOT NULL,
+  `hasil_produksi` int(11) DEFAULT NULL,
   `status` tinyint(4) NOT NULL,
   `barang_idBarang` int(11) NOT NULL,
   `nota_jual_idJual` int(11) NOT NULL,
@@ -621,18 +677,14 @@ CREATE TABLE `spk` (
 -- Dumping data for table `spk`
 --
 
-INSERT INTO `spk` (`idSpk`, `tgl_spk`, `tgl_perencanaan`, `rencana_produksi`, `status`, `barang_idBarang`, `nota_jual_idJual`, `deleted`) VALUES
-(2, '2018-07-29', '2018-08-17', 55, 0, 1, 1, 1),
-(5, '2018-08-07', '2018-08-09', 2323, 0, 1, 1, 1),
-(6, '2018-08-07', '2018-08-31', 69, 0, 8, 2, 1),
-(7, '2018-08-07', '2018-09-03', 51, 0, 1, 1, 0),
-(8, '2018-08-07', '2018-08-30', 69, 0, 7, 2, 1),
-(9, '2018-08-07', '2017-11-25', 23, 0, 8, 1, 0),
-(10, '2018-08-07', '2018-08-31', 51, 0, 3, 2, 1),
-(11, '2018-08-10', '2018-10-10', 12, 0, 1, 2, 1),
-(12, '2018-08-16', '2018-08-31', 12, 0, 1, 2, 0),
-(13, '2018-09-13', '2018-09-14', 21, 0, 2, 1, 1),
-(14, '2018-09-13', '2018-09-21', 5, 0, 2, 1, 0);
+INSERT INTO `spk` (`idSpk`, `tgl_spk`, `tgl_perencanaan`, `tgl_mulai_real`, `tgl_selesai_real`, `rencana_produksi`, `hasil_produksi`, `status`, `barang_idBarang`, `nota_jual_idJual`, `deleted`) VALUES
+(7, '2018-08-07', '2018-10-31', '2018-10-06', '2018-10-13', 51, 0, 0, 1, 1, 0),
+(9, '2018-08-07', '2017-11-25', '2018-10-10', NULL, 23, 0, 0, 8, 1, 0),
+(12, '2018-08-16', '2018-08-31', '2018-09-28', '2018-10-31', 12, 14, 1, 1, 2, 0),
+(14, '2018-09-13', '2018-10-31', '2018-10-11', '2018-10-31', 5, 5, 1, 2, 1, 0),
+(16, '2018-10-11', '2018-10-12', NULL, NULL, 20, NULL, 0, 4, 1, 1),
+(17, '2018-10-11', '2018-10-11', '2018-10-01', '2018-10-02', 10, 15, 1, 2, 2, 1),
+(20, '2018-10-18', '2018-10-26', NULL, NULL, 23, NULL, 0, 2, 2, 1);
 
 -- --------------------------------------------------------
 
@@ -670,9 +722,25 @@ INSERT INTO `tenagakerja` (`idTenagakerja`, `nama`, `alamat`, `telp`, `kota`, `s
 CREATE TABLE `tenagakerja_has_jadwalproduksi` (
   `tenagakerja_idTenagakerja` int(11) NOT NULL,
   `jadwalproduksi_idJadwalproduksi` int(11) NOT NULL,
-  `tugas` varchar(45) NOT NULL,
-  `lama_kerja` int(11) NOT NULL
+  `catatan` varchar(200) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `tenagakerja_has_jadwalproduksi`
+--
+
+INSERT INTO `tenagakerja_has_jadwalproduksi` (`tenagakerja_idTenagakerja`, `jadwalproduksi_idJadwalproduksi`, `catatan`) VALUES
+(1, 104, ''),
+(1, 114, ''),
+(1, 115, ''),
+(2, 114, ''),
+(3, 102, ''),
+(3, 103, ''),
+(3, 105, ''),
+(3, 116, ''),
+(3, 117, ''),
+(4, 104, ''),
+(5, 105, '');
 
 -- --------------------------------------------------------
 
@@ -683,12 +751,18 @@ CREATE TABLE `tenagakerja_has_jadwalproduksi` (
 CREATE TABLE `umkm` (
   `idUmkm` int(11) NOT NULL,
   `namaUmkm` varchar(45) NOT NULL,
-  `username` varchar(45) NOT NULL,
-  `password` varchar(45) NOT NULL,
   `alamat` varchar(45) NOT NULL,
   `telepon` int(12) NOT NULL,
   `nomorRekening` varchar(45) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `umkm`
+--
+
+INSERT INTO `umkm` (`idUmkm`, `namaUmkm`, `alamat`, `telepon`, `nomorRekening`) VALUES
+(1, 'UD Selalu Benar', 'Jl selalu bahagia', 8978676, '798090897867'),
+(2, 'UD Dhayen', 'Jl aku tidak apa', 122323, '213213213');
 
 -- --------------------------------------------------------
 
@@ -702,15 +776,17 @@ CREATE TABLE `user` (
   `password` varchar(50) NOT NULL,
   `salt` varchar(50) NOT NULL,
   `hak_akses` int(11) NOT NULL,
-  `nama` varchar(100) NOT NULL
+  `nama` varchar(100) NOT NULL,
+  `umkm_idUmkm` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`idUser`, `username`, `password`, `salt`, `hak_akses`, `nama`) VALUES
-(1, 'rizki', '090306b4e794d4125aa744539bf8dc1c', 'aa', 99, 'UD Kurn Jaya');
+INSERT INTO `user` (`idUser`, `username`, `password`, `salt`, `hak_akses`, `nama`, `umkm_idUmkm`) VALUES
+(1, 'rizki', '090306b4e794d4125aa744539bf8dc1c', 'aa', 99, 'UD Kurn Jaya', 1),
+(2, 'hamdan', 'ads', 'sa', 99, 'asd', 2);
 
 --
 -- Indexes for dumped tables
@@ -764,7 +840,6 @@ ALTER TABLE `hpp`
 --
 ALTER TABLE `jadwalproduksi`
   ADD PRIMARY KEY (`idJadwalproduksi`),
-  ADD KEY `fk_jadwalproduksi_lahan1_idx` (`lahan_idLahan`),
   ADD KEY `fk_jadwalproduksi_listrik1_idx` (`listrik_idListrik`),
   ADD KEY `fk_jadwalproduksi_spk1_idx` (`spk_idSpk`),
   ADD KEY `fk_jadwalproduksi_prosesproduksi1_idx` (`prosesproduksi_idProsesproduksi`);
@@ -788,12 +863,6 @@ ALTER TABLE `keranjangbelanja`
 --
 ALTER TABLE `konversi`
   ADD PRIMARY KEY (`idKonversi`);
-
---
--- Indexes for table `lahan`
---
-ALTER TABLE `lahan`
-  ADD PRIMARY KEY (`idLahan`);
 
 --
 -- Indexes for table `listrik`
@@ -927,7 +996,7 @@ ALTER TABLE `hpp`
 -- AUTO_INCREMENT for table `jadwalproduksi`
 --
 ALTER TABLE `jadwalproduksi`
-  MODIFY `idJadwalproduksi` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idJadwalproduksi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=122;
 --
 -- AUTO_INCREMENT for table `jenis`
 --
@@ -937,17 +1006,12 @@ ALTER TABLE `jenis`
 -- AUTO_INCREMENT for table `konversi`
 --
 ALTER TABLE `konversi`
-  MODIFY `idKonversi` int(11) NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `lahan`
---
-ALTER TABLE `lahan`
-  MODIFY `idLahan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idKonversi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT for table `listrik`
 --
 ALTER TABLE `listrik`
-  MODIFY `idListrik` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idListrik` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
 -- AUTO_INCREMENT for table `mesin`
 --
@@ -957,7 +1021,7 @@ ALTER TABLE `mesin`
 -- AUTO_INCREMENT for table `nota_beli`
 --
 ALTER TABLE `nota_beli`
-  MODIFY `idBeli` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=87;
+  MODIFY `idBeli` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=106;
 --
 -- AUTO_INCREMENT for table `nota_jual`
 --
@@ -977,7 +1041,7 @@ ALTER TABLE `pemasok`
 -- AUTO_INCREMENT for table `prosesproduksi`
 --
 ALTER TABLE `prosesproduksi`
-  MODIFY `idProsesproduksi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `idProsesproduksi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 --
 -- AUTO_INCREMENT for table `satuan`
 --
@@ -987,7 +1051,7 @@ ALTER TABLE `satuan`
 -- AUTO_INCREMENT for table `spk`
 --
 ALTER TABLE `spk`
-  MODIFY `idSpk` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `idSpk` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 --
 -- AUTO_INCREMENT for table `tenagakerja`
 --
@@ -997,12 +1061,12 @@ ALTER TABLE `tenagakerja`
 -- AUTO_INCREMENT for table `umkm`
 --
 ALTER TABLE `umkm`
-  MODIFY `idUmkm` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idUmkm` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `idUser` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `idUser` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- Constraints for dumped tables
 --
@@ -1038,7 +1102,6 @@ ALTER TABLE `hpp`
 -- Constraints for table `jadwalproduksi`
 --
 ALTER TABLE `jadwalproduksi`
-  ADD CONSTRAINT `fk_jadwalproduksi_lahan1` FOREIGN KEY (`lahan_idLahan`) REFERENCES `lahan` (`idLahan`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_jadwalproduksi_listrik1` FOREIGN KEY (`listrik_idListrik`) REFERENCES `listrik` (`idListrik`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_jadwalproduksi_prosesproduksi1` FOREIGN KEY (`prosesproduksi_idProsesproduksi`) REFERENCES `prosesproduksi` (`idProsesproduksi`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_jadwalproduksi_spk1` FOREIGN KEY (`spk_idSpk`) REFERENCES `spk` (`idSpk`) ON DELETE NO ACTION ON UPDATE NO ACTION;

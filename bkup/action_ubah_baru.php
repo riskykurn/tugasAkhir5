@@ -326,29 +326,6 @@ case "ubahLahan":
  	}
 break;
 
-//UBAH LAHAN
-case "ubahListrik":
-	$tarif = $_POST['uTarif'];
-
-	//SPASI YANG DIINPUT
-	if(strlen(str_replace(" ", "", $tarif)) < 1){
-		$_SESSION['pesan']="Tarif tidak boleh kosong!";
-		header("Location: listrik.php");
-		die();
-	}
-
-	$sql = "UPDATE listrik SET hargaperkwh=".$tarif." where idListrik = 1";
-	$result = mysqli_query($link, $sql);
-	if($result){
-		$_SESSION['pesan']="Berhasil mengubah data Listrik!";
-		header("Location: listrik.php");
-		die();
-	}
-	else if(!$result){
-       die("SQL error_log(message)r : ".$sql);
-		}
-break;
-
 //UBAH BOM
 case "ubahBOM":
 	$idKerupuk = $_POST['uIDKerupuk'];
@@ -383,7 +360,7 @@ case "ubahPelunasan":
 	$status = $_POST['uStatus'];
 
 	//NGECEK INPUTAN KOSONG, KALAU ELSE BERHASIL UBAH
-	if(empty($tglLunas) AND $status ==1){
+	if(empty($tglLunas)){
 	    $_SESSION['pesan'] = "Isi tanggal dengan jelas!";
 	    header("Location: pembelian.php");
 	    die();
@@ -497,6 +474,7 @@ break;
 case "ubahProses":
 	$idProses = $_POST['uIDProses'];
 	$namaProses = $_POST['uNamaProses'];
+	$lamaProses = $_POST['uLamaProses'];
 	$idMesin = $_POST['uIDMesin'];
 
 	if(strlen(str_replace(" ", "", $namaProses)) < 1){
@@ -506,22 +484,15 @@ case "ubahProses":
 	}
 
 	//NGECEK INPUTAN KOSONG, KALAU ELSE DI INSERT KE DB
-	if(empty($namaProses)){
+	if(empty($namaProses) || empty($lamaProses)){
 	    $_SESSION['pesan'] = "Data belum lengkap!";
 	    header("Location: prosesproduksi.php");
 	    die();
     } 
     else{
-		$sql = "UPDATE prosesproduksi 
-			SET nama='".$namaProses."', mesin_idMesin=".$idMesin." 
-				where idProsesproduksi = ".$idProses;
+		$sql = "UPDATE prosesproduksi SET nama='".$namaProses."', lama_proses=".$lamaProses.", mesin_idMesin=".$idMesin." where idProsesproduksi = ".$idProses;
 		$result = mysqli_query($link, $sql);
 		if($result){
-			$sql = "UPDATE jadwalproduksi 
-				SET status_mesin=".$idMesin."  
-				where status_mesin > 0 
-					AND prosesproduksi_idProsesproduksi = ".$idProses;
-			$result = mysqli_query($link, $sql); 
 			$_SESSION['pesan']="Berhasil mengubah data proses produksi!";
 			header("Location: prosesproduksi.php");
 			die();
@@ -580,10 +551,7 @@ case "ubahRealisasiSPK":
 	if($hasilProduksi == NULL){
 		$hasilProduksi = 0; 
 	}
-	/*
-	var_dump($_POST['uIDBB']);
-	var_dump($_POST['uSisa']);
-	*/
+
 	//NGECEK INPUTAN KOSONG, KALAU ELSE DI INSERT KE DB
 	if(empty($mulaiReal)){
 	    $_SESSION['pesan'] = "Tanggal mulai harus diisi!";
@@ -592,63 +560,20 @@ case "ubahRealisasiSPK":
     }
     else if(empty($selesaiReal)){
     	$sql = "UPDATE spk SET tgl_mulai_real='". $mulaiReal ."', hasil_produksi='". $hasilProduksi ."' where idSpk =".$idSPK;
-    	$result= mysqli_query($link,$sql);
-    	if($result){
-	    	$_SESSION['pesan']='Anda berhasil memulai realisasi mulai SPK!';
-	    	header("Location: spk.php");
-	    	die();	
-    	}
-	    else if(!$result){
-	    	die("SQL error_log(message)r : ".$sql);
-	    }
     }
     else{
-    	$sql = "UPDATE spk SET hasil_produksi='". $hasilProduksi ."' where idSpk =".$idSPK;
-    	$result= mysqli_query($link,$sql);
-
-
-    	if($result){ 
-
-	    	$sql = "SELECT * FROM spk WHERE idSpk =".$idSPK;
-	    	$result= mysqli_query($link,$sql); 
-	    	$idBarang=0; 
-			while($r = mysqli_fetch_array($result)){
-				$idBarang=$r['barang_idBarang']; // stok di detail nota
-			}
-			$sql = "
-				UPDATE barang 
-					SET stok=(stok+$hasilProduksi) 
-				WHERE idBarang=$idBarang
-				";
-	    	$result= mysqli_query($link,$sql);
-
-			if(isset($_POST['uIDBB'])){
-				$no = 0;
-				foreach ($_POST['uIDBB'] as $idBB) {
-					$sisanya=$_POST['uSisa'][$no];
-					$sql = "
-						UPDATE bahanbaku 
-							SET stok=(stok+$sisanya) 
-						WHERE idBB=$idBB
-						";
-			    	$result= mysqli_query($link,$sql);
-			    	$no++;
-				}
-			}
-	    	$_SESSION['pesan']='Anda berhasil menyelesaikan realisasi selesai SPK!';
-	    	header("Location: spk.php");
-	    	die();	
-    	}
-	    else if(!$result){
-	    	die("SQL error_log(message)r : ".$sql);
-	    }
+    	$sql = "UPDATE spk SET tgl_mulai_real='". $mulaiReal ."', tgl_selesai_real='". $selesaiReal ."', hasil_produksi='". $hasilProduksi ."' where idSpk =".$idSPK;
+    }   
+	
+    $result= mysqli_query($link,$sql);
+    if($result){
+    	$_SESSION['pesan']='Anda berhasil memulai realisasi mulai SPK!';
+    	header('spk.php');
+    	die();	
     }
-    /*
-    if($hasilProduksi != null || $hasilProduksi >0){
-		$sql = "UPDATE bahanbaku SET stok='". $mulaiReal ."', tgl_selesai_real='". $selesaiReal ."', hasil_produksi='". $hasilProduksi ."' where idSpk =".$idSPK;
-    	$result= mysqli_query($link,$sql);
-    }*/
-    
+    else if(!$result){
+    	die("SQL error_log(message)r : ".$sql);
+    }
 break;
 
 //UBAH BB PADA REALISASI
@@ -675,6 +600,7 @@ case "ubahRealisasiBB":
     else{
     	$sqlCek = "SELECT stok
     	FROM bahanbaku where idBB=".$idBB;
+    	//echo 'sql : '.$sqlCek.'</br>';
 		$resultCek= mysqli_query($link,$sqlCek); 
 		while($rowCek = mysqli_fetch_array($resultCek)){
 			$jmlSekarang=$rowCek['stok']; // stok di detail nota
@@ -765,41 +691,16 @@ case "ubahRealisasiJadwal":
 	$selesaiReal = $_POST['uSelesaiReal']; 
 	$idSPK = $_POST['uIDSPK']; 
 	$idJadwal = $_POST['uIDJadwal']; 
-	$namaProses = $_POST['uNamaProses'];
+	$namaProses = $_POST['uNamaProses']; 
 
 	//NGECEK INPUTAN KOSONG, KALAU ELSE DI INSERT KE DB
 	if(empty($mulaiReal)){
-		if(empty($selesaiReal)){
-			$_SESSION['pesan'] = "Tanggal selesai harus diisi!";
-		    header('Location: detailPenjadwalan.php?id='.$idSPK);
-		    die();
-		}
-		else{
-			$_SESSION['pesan'] = "Tanggal mulai harus diisi!";
-		    header('Location: detailPenjadwalan.php?id='.$idSPK);
-		    die();
-		}
+	    $_SESSION['pesan'] = "Tanggal mulai harus diisi!";
+	    header('Location: detailPenjadwalan.php?id='.$idSPK);
+	    die();
     }
     else if(empty($selesaiReal)){
-    	if(empty($selesaiReal) AND $mulaiReal == NULL){
-			$sql = "UPDATE jadwalproduksi SET tgl_mulai_real='". $mulaiReal ."' where idJadwalproduksi =".$idJadwal;
-	    	$result= mysqli_query($link,$sql);
-	    	if($result){
-	    		$selesaiReal; $mulaiReal; exit();
-		    	$_SESSION['pesan']='Anda berhasil memulai penjadwalan proses '.$namaProses;
-		    	header('Location: detailPenjadwalan.php?id='.$idSPK);
-		    	die();
-		    }
-		    else if(!$result){
-		    	die("SQL error_log(message)r : ".$sql);
-		    }
-		}
-		else if ($selesaiReal == NULL){
-			$_SESSION['pesan']='Tanggal selesai harus diisi!';
-	    	header('Location: detailPenjadwalan.php?id='.$idSPK);
-	    	die();
-		}
-    	
+    	$sql = "UPDATE jadwalproduksi SET tgl_mulai_real='". $mulaiReal ."' where idJadwalproduksi =".$idJadwal;
     }
     else{
     	$sql = "UPDATE jadwalproduksi SET tgl_mulai_real='". $mulaiReal ."', tgl_selesai_real='". $selesaiReal ."' where idJadwalproduksi =".$idJadwal;
@@ -807,26 +708,13 @@ case "ubahRealisasiJadwal":
 	
     $result= mysqli_query($link,$sql);
     if($result){
-    	$_SESSION['pesan']='Anda berhasil menyelesaikan penjadwalan proses '.$namaProses;
+    	$_SESSION['pesan']='Anda berhasil memulai penjadwalan proses '.$namaProses;
     	header('Location: detailPenjadwalan.php?id='.$idSPK);
-    	if(isset($_POST['uTerakhir'])){
-    	$sql = "UPDATE spk SET tgl_selesai_real='". $selesaiReal ."', status = 1 where idSpk =".$idSPK;
-	    $result= mysqli_query($link,$sql);
-	    if($result){
-	    	$_SESSION['pesan']='Anda berhasil menyelesaikan penjadwalan proses '.$namaProses;
-	    	header('Location: detailPenjadwalan.php?id='.$idSPK);
-	    	die();	
-	    }
-	    else if(!$result){
-	    	die("SQL error_log(message)r : ".$sql);
-	    }
-    }
     	die();	
     }
     else if(!$result){
     	die("SQL error_log(message)r : ".$sql);
     }
-
 break;
 
 //// UBAH DETAIL KARYAWAN

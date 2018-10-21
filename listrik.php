@@ -104,7 +104,7 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
   </div>
   <a class="current logo hidden-xs" href="index.php" data-toggle="tooltip" data-placement="right" title="" data-original-title="Halaman Depan"><i class="fa fa-home"></i></a>
   <a class="menu-toggler" href="#" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Tampilkan / Hilangkan"><i class="fa fa-bars"></i></a>
-  <h1>Menu Utama: Jenis Kerupuk</h1>
+  <h1>Menu Utama: Listrik per KWH (Saat ini)</h1>
 </div>
   <div class="side">
   <div class="sidebar-wrapper">
@@ -133,17 +133,16 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
     <li><a href="bahanbaku.php">Bahan Baku</a></li>
     <ul><li><a href="satuan.php">Satuan BB</a></li></ul>
     <li><a href="kerupuk.php">Kerupuk</a></li>
-    <ul><li class='current'><a href="jenis.php">Jenis Kerupuk</a></li></ul>
+    <ul><li><a href="jenis.php">Jenis Kerupuk</a></li></ul>
     <li><a href="mesin.php">Mesin</a></li>
-    <li><a href="listrik.php">Tarif Listrik / KWH<br>(Saat ini)</a></li>
+    <li class='current'><a href="listrik.php">Tarif Listrik / KWH<br>(Saat ini)</a></li>
   </ul>
 </div>
   </div>
   <div class="main-content">
   <ol class="breadcrumb">
   <li><a href="#">Menu Utama</a></li>
-  <li><a href="kerupuk.php">Kerupuk</a></li>
-  <li class="active">Jenis Kerupuk</li>
+  <li class="active">Tarif Listik / KWH (Saat ini)</li>
   </ol>
   <!-- not necessary
     <div class="alert alert-warning alert-dismissable bottom-margin">
@@ -157,93 +156,42 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
           <div class="widget-title">
             <div class="widget-controls">
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a> 
+  <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
-            <h3><i class="fa fa-plus-circle"></i> Tambah Jenis Kerupuk</h3>
+            <h3><i class="fa fa-tachometer"></i> Data Harga Listrik / KWH </h3>
           </div>
           <div class="widget-content">
-            <form action="action_tambah.php?cmd=tambahJenis" method="POST" role="form">
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-group">
-                    <label>Jenis Kerupuk</label>
-                    <input type="text" name="uJenis" class="form-control">
+                  <?php
+                    $sql = "SELECT * FROM listrik";
+
+                    $result = mysqli_query($link, $sql);
+                    if(!$result){
+                        die("<br/>SQL error_log(message)r : " . $sql);
+                    }
+                    while ($row = mysqli_fetch_array($result)) {
+                      $tarif= "Rp " . number_format($row['hargaperkwh'],0,',','.');
+                    ?>
+                    <label> Tarif (per kWh) </label>
+                    <input type="number" min="0" class="form-control" disabled="disabled" placeholder="<?php echo $tarif; ?>">
+                    <?php } ?>
                   </div>
                 </div>
               </div>
               <div class="text-right">
-              <input type="reset" class="btn btn-default" value="Batal">
-              <button class="btn btn-primary">Simpan</button>
+                <button class="btn btn-primary" href="#modalUbah" data-toggle="modal">Ubah</button>
               </div>
-            </form>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="widget widget-blue">
-      <div class="widget-title">
-              <div class="widget-controls">
-  <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a> 
-  <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
-</div>
-        <h3><i class="fa fa-asterisk"></i><strong> Data Jenis Kerupuk </strong></h3>
-      </div>
-      <div class="widget-content">
-        <div class="table-responsive">
-        <table class="table table-bordered table-hover">
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Nama</th>
-              <th class="text-right">Tindakan</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php
-            $sql = "SELECT * FROM jenis
-            order by idJenis desc";
-
-                $result = mysqli_query($link, $sql);
-            if(!$result){
-                die("<br/>SQL error_log(message)r : " . $sql);
-            }
-            $no=0;
-            while ($row = mysqli_fetch_array($result)) {
-              $no++;
-            ?>
-              <tr>
-                <td><?php echo $no; ?></td>
-                <td><?php echo $row['jenis']; ?></td>
-                <td class="text-right">
-                  <a href="#modalUbah_<?php echo $row['idJenis']; ?>" class="btn btn-round btn-default btn-xs" data-toggle="modal">Ubah</a>
-                <a href="#modalHapus_<?php echo $row['idJenis']; ?>" class="btn btn-round btn-danger btn-xs" data-toggle="modal">Hapus</a>
-                </td>
-              </tr>
-            <?php } ?>
-          </tbody>
-        </table>
         </div>
       </div>
     </div>
     </div>
   </div>
 
-<!-- Pengulangan query, di while lg, modalnya ga kebaca -->
-  <?php
-  $sql = "SELECT * FROM jenis
-            order by idJenis desc";
-  $result = mysqli_query($link, $sql);
-  if(!$result){
-      die("<br/>SQL error_log(message)r : " . $sql);
-  }
-  $no=0;
-  while ($row = mysqli_fetch_array($result)) {
-      $no++;
-  ?>
-  <div class="modal fade" id="modalUbah_<?php echo $row['idJenis']; ?>" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
+  <div class="modal fade" id="modalUbah" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="widget widget-blue">
@@ -251,23 +199,33 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
           <div class="widget-controls">
             <a href="#" class="widget-control " data-dismiss="modal"><i class="fa fa-times-circle"></i></a>
           </div>
-          <h3><i class="fa fa-ok-circle"></i> <strong>UBAH JENIS KERUPUK: </strong> <?php echo $row['jenis']; ?></h3>
+          <h3><i class="fa fa-ok-circle"></i> <strong>Ubah Tarif Listik</strong></h3>
         </div>
         <div class="widget-content">
           <div class="modal-body">
-            <form action="action_ubah.php?cmd=ubahJenis" method="POST" role="form">
+            <form action="action_ubah.php?cmd=ubahListrik" method="POST" role="form">
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-group">
-                    <label>Jenis Kerupuk</label>
-                    <input type="text" name="uJenis" value= "<?php echo $row['jenis']; ?>" class="form-control">
+                    <?php
+                      $sql = "SELECT * FROM listrik where idListrik =1";
+                      $result = mysqli_query($link, $sql);
+                      if(!$result){
+                          die("<br/>SQL error_log(message)r : " . $sql);
+                      }
+                      $no=0;
+                      while ($row = mysqli_fetch_array($result)) {
+                          $no++;
+                    ?>
+                    <label>Tarif (per kWh)</label>
+                    <input type="text" name="uTarif" value= "<?php echo $row['hargaperkwh']; ?>" class="form-control">
+                    <?php } ?>
                   </div>
                 </div>
               </div>
               <div class="text-right">
-              <input type="hidden" name="uID" value= "<?php echo $row['idJenis']; ?>">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
-              <button class="btn btn-primary">Ubah</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+                <button class="btn btn-primary">Ubah</button>
               </div>
             </form>
           </div>
@@ -277,40 +235,6 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
   </div>
 </div>
 
-<div class="modal fade" id="modalHapus_<?php echo $row['idJenis']; ?>" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="widget widget-blue">
-        <div class="widget-title">
-          <div class="widget-controls">
-            <a href="#" class="widget-control " data-dismiss="modal"><i class="fa fa-times-circle"></i></a>
-          </div>
-          <h3><i class="fa fa-ok-circle"></i> <strong>HAPUS JENIS KERUPUK: </strong> <?php echo $row['jenis']; ?></h3>
-        </div>
-        <div class="widget-content">
-          <div class="modal-body">
-            <form action="action_hapus.php?cmd=hapusJenis" method="POST" role="form">
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="alert alert-warning alert-dismissable bottom-margin">
-                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
-                  <i class="fa fa-exclamation-circle"></i> <strong>Peringatan!</strong> Anda akan menghapus Jenis Kerupuk : <u><?php echo $row['jenis'];?></u>. Data yang dihapus tidak dapat dikembalikan lagi.
-                  </div>
-                </div>
-                <div class="col-md-12 text-right">
-                  <input type="hidden" name="uID" value= "<?php echo $row['idJenis']; ?>">
-                  <button class="btn btn-default" data-dismiss="modal">Batal</button>
-                  <button class="btn btn-danger">Hapus Data</button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<?php } ?>
 <?php
   if(isset($_SESSION['pesan'])){
       echo "<script type='text/javascript'>alert('" . $_SESSION['pesan'] ."')</script>";

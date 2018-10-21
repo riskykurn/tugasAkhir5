@@ -1,6 +1,12 @@
 <?php
 session_start(); 
 require 'db.php'; 
+
+if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSION['login'] == '' || $_SESSION['login'] == null){
+  $_SESSION['pesan'] = "Anda Belum Login";
+  header("Location: login.php");
+  exit();
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -85,12 +91,13 @@ require 'db.php';
           <img src="assets/images/avatar-small.jpg" alt="">
         </div>
         <div class="user-name-w">
-          Lionel Messi <i class="fa fa-caret-down"></i>
+          <?php echo $_SESSION['namaUmkm']; ?> : (<?php echo $_SESSION['log_nama']; ?>) 
+          <i class="fa fa-caret-down"></i>
         </div>
       </a>
       <ul class="dropdown-menu dropdown-inbar">
         <li><a href="gantipassword.php"><i class="fa fa-unlock-alt"></i> Ganti Password </a></li>
-        <li><a href="#"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
+        <li><a href="login.php?logout=1"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
       </ul>
     </div>
   </div>
@@ -175,6 +182,7 @@ require 'db.php';
               </div>
               <div class="text-right">
               <button type="button" onclick="tampilBOM($('#uKerupuk').val())" class="btn btn-iconed btn-primary"><i class="fa fa-plus-circle"></i> Tambahkan Resep </button>
+              <span class="help-block" >*Jika daftar resep masih kosong / kurang, tekan tombol ini*</span>
               </div>
             <!--</form>-->
           </div>
@@ -187,7 +195,6 @@ require 'db.php';
             <div class="widget-controls">
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
   <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-refresh" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tampilkan Ulang"><i class="fa fa-refresh"></i></a>
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
             <h3><i class="fa fa-plus-circle"></i> Mengisikan Resep / Komposisi Kerupuk </h3>
@@ -205,7 +212,6 @@ require 'db.php';
               <div class="widget-controls">
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
   <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-refresh" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tampilkan Ulang"><i class="fa fa-refresh"></i></a>
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
         <h3><i class="fa fa-dropbox"></i><strong> DAFTAR RESEP </strong></h3>

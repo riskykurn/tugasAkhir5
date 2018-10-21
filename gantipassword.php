@@ -1,6 +1,12 @@
 <?php
 session_start(); 
 require 'db.php'; 
+
+if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSION['login'] == '' || $_SESSION['login'] == null){
+  $_SESSION['pesan'] = "Anda Belum Login";
+  header("Location: login.php");
+  exit();
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -85,17 +91,20 @@ require 'db.php';
           <img src="assets/images/avatar-small.jpg" alt="">
         </div>
         <div class="user-name-w">
-          Lionel Messi <i class="fa fa-caret-down"></i>
+          
+        <?php echo $_SESSION['namaUmkm']; ?> : (<?php echo $_SESSION['log_nama']; ?>) 
+        <i class="fa fa-caret-down"></i>
         </div>
       </a>
       <ul class="dropdown-menu dropdown-inbar">
-        <li><a href="#"><i class="fa fa-unlock-alt"></i> Ganti Password </a></li>
-        <li><a href="#"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
+        <li><a href="gantipassword.php"><i class="fa fa-unlock-alt"></i> Ganti Password </a></li>
+        <li><a href="login.php?logout=1"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
       </ul>
     </div>
   </div>
   <a class="current logo hidden-xs" href="index.php" data-toggle="tooltip" data-placement="right" title="" data-original-title="Halaman Depan"><i class="fa fa-home"></i></a>
-  <h1>Profil: Ganti Password</h1>
+  <a class="menu-toggler" href="#" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Tampilkan / Hilangkan"><i class="fa fa-bars"></i></a>
+  <h1>Profil : Ganti Password</h1>
 </div>
   <div class="side">
   <div class="sidebar-wrapper">
@@ -105,7 +114,7 @@ require 'db.php';
         <i class="fa fa-home"></i>
       </a>
     </li>
-    <li>
+    <li class='current'>
       <a class='current' href="pemasok.php" data-toggle="tooltip" data-placement="right" title="" data-original-title="Menu Utama">
         <i class="fa fa-th-large"></i>
       </a>
@@ -116,18 +125,7 @@ require 'db.php';
       </a>
     </li>
   </ul>
-</div>
-  <div class="sub-sidebar-wrapper">
-  <ul>
-    <li><a href="pemasok.php">Pemasok</a></li>
-    <li><a href="karyawan.php">Karyawan</a></li>
-    <li><a href="bahanbaku.php">Bahan Baku</a></li>
-    <li><a href="kerupuk.php">Kerupuk</a></li>
-    <li><a href="mesin.php">Mesin</a></li>
-    <li class='current'><a href="lahan.php">Sewa Lahan</a></li>
-    <li><a href="form_file_upload.html">Harga Listrik<br>(Saat ini)</a></li>
-  </ul>
-</div>
+</div> 
   </div>
   <div class="main-content">
   <ol class="breadcrumb">
@@ -142,12 +140,11 @@ require 'db.php';
   -->
     <div class="row">
       <div class="col-md-12">
-        <div class="widget widget-blue">
+         <div class="widget widget-blue">
           <div class="widget-title">
             <div class="widget-controls">
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
   <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-refresh" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tampilkan Ulang"><i class="fa fa-refresh"></i></a>
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
             <h3><i class="fa fa-key"></i><strong> Ganti Password (Kata Sandi) </strong></h3>
@@ -171,20 +168,21 @@ require 'db.php';
                 </div>
               </div>
               <div class="text-right">
-              <a href="index.php" class="btn btn-iconed btn-default"><i class="fa fa-arrow-circle-o-left"></i> Kembali</a>
+              <a href="index.php" class="btn btn-iconed btn-default"><i class="fa fa-arrow-circle-o-left"></i> Kembali Ke Home </a>
               <button class="btn btn-primary">Ubah Password</button>
               </div>
             </form>
           </div>
         </div>
       </div>
-    </div>
+    </div>  
     </div>
   </div>
 
 <!-- Pengulangan query, di while lg, modalnya ga kebaca -->
   <?php
-  $sql = "SELECT * FROM lahan order by idLahan desc";
+  $sql = "SELECT * FROM satuan
+            order by idSatuan desc";
   $result = mysqli_query($link, $sql);
   if(!$result){
       die("<br/>SQL error_log(message)r : " . $sql);
@@ -193,7 +191,7 @@ require 'db.php';
   while ($row = mysqli_fetch_array($result)) {
       $no++;
   ?>
-  <div class="modal fade" id="modalUbah_<?php echo $row['idLahan']; ?>" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
+  <div class="modal fade" id="modalUbah_<?php echo $row['idSatuan']; ?>" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="widget widget-blue">
@@ -201,28 +199,24 @@ require 'db.php';
           <div class="widget-controls">
             <a href="#" class="widget-control " data-dismiss="modal"><i class="fa fa-times-circle"></i></a>
           </div>
-          <h3><i class="fa fa-ok-circle"></i> <strong>UBAH LAHAN: </strong> <?php echo $row['nama']; ?></h3>
+          <h3><i class="fa fa-ok-circle"></i> <strong>UBAH SATUAN BAHAN BAKU: </strong> <?php echo $row['nama']; ?></h3>
         </div>
         <div class="widget-content">
           <div class="modal-body">
-            <form action="action_ubah.php?cmd=ubahLahan" method="POST" role="form">
+            <form action="action_ubah.php?cmd=ubahSatuan" method="POST" role="form">
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-group">
-                    <label>Nama Lahan</label>
-                    <input type="text" name="uNama" value= "<?php echo $row['nama']; ?>" class="form-control">
-                  </div>
-                </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>Biaya Sewa</label>
-                    <input type="number" min="0" name="uBiaya" value= "<?php echo $row['biaya_sewa']; ?>" class="form-control" placeholder="Rp. ">
+                    <label>Nama Satuan</label>
+                    <input type="text" name="uSatuan" value= "<?php echo $row['nama']; ?>" class="form-control">
                   </div>
                 </div>
               </div>
-              <input type="hidden" name="uID" value= "<?php echo $row['idLahan']; ?>">
-              <button class="btn btn-primary">Ubah</button>
+              <div class="text-right">
+              <input type="hidden" name="uID" value= "<?php echo $row['idSatuan']; ?>">
               <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+              <button class="btn btn-primary">Ubah</button>
+              </div>
             </form>
           </div>
         </div>
@@ -231,7 +225,7 @@ require 'db.php';
   </div>
 </div>
 
-<div class="modal fade" id="modalHapus_<?php echo $row['idLahan']; ?>" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
+<div class="modal fade" id="modalHapus_<?php echo $row['idSatuan']; ?>" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="widget widget-blue">
@@ -239,22 +233,22 @@ require 'db.php';
           <div class="widget-controls">
             <a href="#" class="widget-control " data-dismiss="modal"><i class="fa fa-times-circle"></i></a>
           </div>
-          <h3><i class="fa fa-ok-circle"></i> <strong>HAPUS LAHAN: </strong> <?php echo $row['nama']; ?></h3>
+          <h3><i class="fa fa-ok-circle"></i> <strong>HAPUS SATUAN BAHAN BAKU: </strong> <?php echo $row['nama']; ?></h3>
         </div>
         <div class="widget-content">
           <div class="modal-body">
-            <form action="action_hapus.php?cmd=hapusLahan" method="POST" role="form">
+            <form action="action_hapus.php?cmd=hapusSatuan" method="POST" role="form">
               <div class="row">
                 <div class="col-md-12">
                   <div class="alert alert-warning alert-dismissable bottom-margin">
                   <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
-                  <i class="fa fa-exclamation-circle"></i> <strong>Peringatan!</strong> Anda akan menghapus Lahan : <u><?php echo $row['nama'];?></u>. Data yang dihapus tidak dapat dikembalikan lagi.
+                  <i class="fa fa-exclamation-circle"></i> <strong>Peringatan!</strong> Anda akan menghapus Satuan : <u><?php echo $row['nama'];?></u>. Data yang dihapus tidak dapat dikembalikan lagi.
                   </div>
                 </div>
-                <div class="col-md-12">
-                  <input type="hidden" name="uID" value= "<?php echo $row['idLahan']; ?>">
-                  <button class="btn btn-danger">Hapus Data</button>
+                <div class="col-md-12 text-right">
+                  <input type="hidden" name="uID" value= "<?php echo $row['idSatuan']; ?>">
                   <button class="btn btn-default" data-dismiss="modal">Batal</button>
+                  <button class="btn btn-danger">Hapus Data</button>
                 </div>
               </div>
             </form>

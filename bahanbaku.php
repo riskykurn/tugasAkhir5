@@ -1,6 +1,12 @@
 <?php
 session_start(); 
 require 'db.php'; 
+
+if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSION['login'] == '' || $_SESSION['login'] == null){
+  $_SESSION['pesan'] = "Anda Belum Login";
+  header("Location: login.php");
+  exit();
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -85,12 +91,13 @@ require 'db.php';
           <img src="assets/images/avatar-small.jpg" alt="">
         </div>
         <div class="user-name-w">
-          Lionel Messi <i class="fa fa-caret-down"></i>
+          <?php echo $_SESSION['namaUmkm']; ?> : (<?php echo $_SESSION['log_nama']; ?>) 
+          <i class="fa fa-caret-down"></i>
         </div>
       </a>
       <ul class="dropdown-menu dropdown-inbar">
         <li><a href="gantipassword.php"><i class="fa fa-unlock-alt"></i> Ganti Password </a></li>
-        <li><a href="#"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
+        <li><a href="login.php?logout=1"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
       </ul>
     </div>
   </div>
@@ -127,8 +134,7 @@ require 'db.php';
     <li><a href="kerupuk.php">Kerupuk</a></li>
     <ul><li><a href="jenis.php">Jenis Kerupuk</a></li></ul>
     <li><a href="mesin.php">Mesin</a></li>
-    <li><a href="lahan.php">Sewa Lahan</a></li>
-    <li><a href="form_file_upload.html">Harga Listrik<br>(Saat ini)</a></li>
+    <li><a href="listrik.php">Tarif Listrik / KWH<br>(Saat ini)</a></li>
   </ul>
 </div>
   </div>
@@ -150,7 +156,6 @@ require 'db.php';
             <div class="widget-controls">
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
   <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-refresh" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tampilkan Ulang"><i class="fa fa-refresh"></i></a>
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
             <h3><i class="fa fa-plus-circle"></i> Tambah Bahan Baku</h3>
@@ -201,8 +206,7 @@ require 'db.php';
                 <div class="widget-title">
                   <div class="widget-controls">
         <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
-        <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
-        <a href="#" class="widget-control widget-control-refresh" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tampilkan Ulang"><i class="fa fa-refresh"></i></a>
+        <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a> 
         <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
       </div>
             <h3><i class="fa fa-plus-circle"></i> Tambah Satuan Bahan Baku </h3>
@@ -213,7 +217,7 @@ require 'db.php';
                 <div class="col-md-12">
                 <div class="alert alert-warning alert-dismissable bottom-margin">
                   <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                  <i class="fa fa-exclamation-circle"></i> Tambahkan <u>jenis kerupuk</u> anda disini. Sehingga anda dapat memilih <u>jenis kerupuk</u> pada saat menambahkan kerupuk baru. <a href="satuan.php"> *Master Satuan* </a>
+                  <i class="fa fa-exclamation-circle"></i> Tambahkan <u>Satuan bahan baku</u> anda disini. Sehingga anda dapat memilih <u>satuan</u> pada saat menambahkan bahan baku baru. <a href="satuan.php"> *Master Satuan* </a>
                   </div>
                   <div class="form-group">
                     <label>Nama Satuan</label>
@@ -235,8 +239,7 @@ require 'db.php';
       <div class="widget-title">
               <div class="widget-controls">
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-refresh" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tampilkan Ulang"><i class="fa fa-refresh"></i></a>
+  <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a> 
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
         <h3><i class="fa fa-bitbucket"></i><strong> Data Bahan Baku</strong></h3>
@@ -317,19 +320,19 @@ require 'db.php';
 
 <!-- Pengulangan query, di while lg, modalnya ga kebaca -->
 <?php
-$sql = "SELECT bb.idBB as idBB, bb.nama as nama, s.idSatuan as idSatuan, s.nama as satuan, bb.harga_beli as harga_beli, bb.stok as stok
+$sqlModal = "SELECT bb.idBB as idBB, bb.nama as nama, s.idSatuan as idSatuan, s.nama as satuan, bb.harga_beli as harga_beli, bb.stok as stok
                   FROM bahanbaku bb inner join satuan s
                     on bb.idSatuan = s.idSatuan
                   order by bb.idBB desc";
-$result = mysqli_query($link, $sql);
-if(!$result){
-    die("<br/>SQL error_log(message)r : " . $sql);
+$resultModal = mysqli_query($link, $sqlModal);
+if(!$resultModal){
+    die("<br/>SQL error_log(message)r : " . $sqlModal);
 }
 $no=0;
-while ($row = mysqli_fetch_array($result)) {
+while ($rowModal = mysqli_fetch_array($resultModal)) {
     $no++;
 ?>
-<div class="modal fade" id="modalUbah_<?php echo $row['idBB']; ?>" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
+<div class="modal fade" id="modalUbah_<?php echo $rowModal['idBB']; ?>" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
 <div class="modal-dialog">
   <div class="modal-content">
     <div class="widget widget-blue">
@@ -337,7 +340,7 @@ while ($row = mysqli_fetch_array($result)) {
         <div class="widget-controls">
           <a href="#" class="widget-control " data-dismiss="modal"><i class="fa fa-times-circle"></i></a>
         </div>
-        <h3><i class="fa fa-ok-circle"></i> <strong>UBAH BAHAN BAKU: </strong> <?php echo $row['nama']; ?></h3>
+        <h3><i class="fa fa-ok-circle"></i> <strong>UBAH BAHAN BAKU: </strong> <?php echo $rowModal['nama']; ?></h3>
       </div>
       <div class="widget-content">
         <div class="modal-body">
@@ -346,13 +349,13 @@ while ($row = mysqli_fetch_array($result)) {
               <div class="col-md-12">
                 <div class="form-group">
                   <label>Nama Bahan Baku</label>
-                  <input type="text" name="uNama" value= "<?php echo $row['nama']; ?>" class="form-control">
+                  <input type="text" name="uNama" value= "<?php echo $rowModal['nama']; ?>" class="form-control">
                 </div>
               </div>
               <div class="col-md-8">
                   <div class="form-group">
                     <label>Stok (Jumlah)</label>
-                    <input type="number" min="0" name="uStok" value= "<?php echo $row['stok']; ?>" class="form-control" disabled="disabled">
+                    <input type="number" min="0" name="uStok" value= "<?php echo $rowModal['stok']; ?>" class="form-control" disabled="disabled">
                   </div>
               </div>
               <div class="col-md-4">
@@ -366,7 +369,7 @@ while ($row = mysqli_fetch_array($result)) {
 
                       while($rowJenis = mysqli_fetch_array($resultJenis)){
                         $selected='';
-                        if($rowJenis['idSatuan'] == $row['idSatuan']){
+                        if($rowJenis['idSatuan'] == $rowModal['idSatuan']){
                           $selected='selected';
                         }
                         echo '<option '.$selected.' value= "'. $rowJenis['idSatuan'] .'">' . $rowJenis['nama'] . '</option>';
@@ -377,7 +380,7 @@ while ($row = mysqli_fetch_array($result)) {
               </div>
             </div>
             <div class="text-right">
-            <input type="hidden" name="uID" value= "<?php echo $row['idBB']; ?>">
+            <input type="hidden" name="uID" value= "<?php echo $rowModal['idBB']; ?>">
             <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
             <button class="btn btn-primary">Ubah</button>            
             </div>
@@ -389,7 +392,7 @@ while ($row = mysqli_fetch_array($result)) {
 </div>
 </div>
 
-<div class="modal fade" id="modalHapus_<?php echo $row['idBB']; ?>" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
+<div class="modal fade" id="modalHapus_<?php echo $rowModal['idBB']; ?>" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="widget widget-blue">
@@ -397,7 +400,7 @@ while ($row = mysqli_fetch_array($result)) {
           <div class="widget-controls">
             <a href="#" class="widget-control " data-dismiss="modal"><i class="fa fa-times-circle"></i></a>
           </div>
-          <h3><i class="fa fa-ok-circle"></i> <strong>HAPUS BAHAN BAKU: </strong> <?php echo $row['nama']; ?></h3>
+          <h3><i class="fa fa-ok-circle"></i> <strong>HAPUS BAHAN BAKU: </strong> <?php echo $rowModal['nama']; ?></h3>
         </div>
         <div class="widget-content">
           <div class="modal-body">
@@ -406,11 +409,11 @@ while ($row = mysqli_fetch_array($result)) {
                 <div class="col-md-12">
                   <div class="alert alert-warning alert-dismissable bottom-margin">
                   <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
-                  <i class="fa fa-exclamation-circle"></i> <strong>Peringatan!</strong> Anda akan menghapus Bahan Baku : <u><?php echo $row['nama'];?></u>. Data yang dihapus tidak dapat dikembalikan lagi.
+                  <i class="fa fa-exclamation-circle"></i> <strong>Peringatan!</strong> Anda akan menghapus Bahan Baku : <u><?php echo $rowModal['nama'];?></u>. Data yang dihapus tidak dapat dikembalikan lagi.
                   </div>
                 </div>
                 <div class="col-md-12 text-right">
-                  <input type="hidden" name="uID" value= "<?php echo $row['idBB']; ?>">
+                  <input type="hidden" name="uID" value= "<?php echo $rowModal['idBB']; ?>">
                   <button class="btn btn-default" data-dismiss="modal">Batal</button>
                   <button class="btn btn-danger">Hapus Data</button>
                 </div>

@@ -2,58 +2,37 @@
 session_start();
 require 'db.php'; 
 
-if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSION['login'] == '' || $_SESSION['login'] == null){
-  $_SESSION['pesan'] = "Anda Belum Login";
-  header("Location: login.php");
-  exit();
-}
-
-$sqlData="SELECT bb.idBB, bb.nama as namaBB, s.nama as satuan, sum(mn1.jumlah*mn2.jumlah) as total, nj.idJual as id, nj.tanggal as tanggalJual, p.namaPelanggan as namaPelanggan
-  FROM nota_jual nj inner join barang_has_nota_jual mn1
-    on nj.idJual = mn1.nota_jual_idJual
-  inner join barang b
-    on mn1.barang_idBarang = b.idBarang
-  inner join bahanbaku_has_barang mn2
-    on mn2.barang_idBarang = b.idBarang
-  inner join bahanbaku bb
-    on mn2.bahanbaku_idBB = bb.idBB
-  inner join satuan s
-    on s.idSatuan = bb.idSatuan
-  inner join pelanggan p
-    on nj.pelanggan_idPelanggan = p.idPelanggan
-  where nj.idJual = $_GET[id]
-    and b.idBarang in (
-        SELECT barang_idBarang from barang_has_nota_jual 
-        where nota_jual_idJual = $_GET[id]
-      )
-   group by bb.idBB, bb.nama, s.nama
-   order by bb.nama";
-$res= mysqli_query($link,$sqlData); 
-$r_data=mysqli_fetch_array($res);
-
-$idJual = $_GET['id'];
-$idSpk = $_GET['idSpk'];
-$namaPelanggan = $r_data['namaPelanggan'];
-$tanggalJual = $r_data['tanggalJual'];
-
-/* R_DATA TANGGAL SPK */
-$namaBarang='';
-$sqlData2="SELECT spk.idSpk as spk, nj.idJual as nota_jual, nj.tanggal as tanggal_nota, spk.tgl_spk as tglSpk, spk.tgl_perencanaan as tglRencana, spk.rencana_produksi as rencana, spk.status as status, p.namaPelanggan as pelanggan, b.nama as nama_barang, b.idBarang as idBarang
+$sqlData="SELECT spk.idSpk as id, nj.idJual as nota_jual, nj.tanggal as tanggal_nota, spk.tgl_spk as tglSpk, spk.tgl_perencanaan as tglRencana, spk.rencana_produksi as rencana, spk.status as status, p.namaPelanggan as pelanggan, b.nama as nama_barang, b.idBarang as idBarang
   FROM barang b inner join spk
     on b.idBarang = spk.barang_idBarang
   inner join nota_jual nj
     on spk.nota_jual_idJual = nj.idJual
   inner join pelanggan p 
     on nj.pelanggan_idPelanggan = p.idPelanggan
-  where spk.deleted=0 and nj.idJual=$_GET[id]";
+  where spk.deleted=0 AND spk.idSpk=$_GET[id]";
+$res= mysqli_query($link,$sqlData); 
+$r_data=mysqli_fetch_array($res);
+$idJual = $r_data['nota_jual'];
+$idSpk = $r_data['id'];
+$idBB = $_GET['BB'];
+$idBarang = $r_data['idBarang'];
+
+/* R_DATA TANGGAL SPK */
+$sqlData2="SELECT b.idBarang as idBarang, bb.idBB as idBB, bb.stok as stok, b.nama as nama_barang, bb.idBB as idBB, bb.nama as nama_bb, s.nama as satuan, mn.jumlah as jumlah
+  FROM bahanbaku bb 
+  inner join bahanbaku_has_barang mn
+    on bb.idBB = mn.bahanbaku_idBB
+  inner join barang b
+    on mn.barang_idBarang = b.idBarang
+  inner join satuan s
+    on bb.idSatuan = s.idSatuan
+  where b.idBarang=$idBarang and bb.idBb= $idBB";
 /*$res2= mysqli_query($link,$sqlData2); 
 $r_data2=mysqli_fetch_array($res2);*/
 $res2 = mysqli_query($link, $sqlData2);
-if($res2){
-  while ($r_data2 = mysqli_fetch_array($res2)) {
-    $namaBarang .= "*".$r_data2['nama_barang']."<br>";
-  }
-} 
+$r_data2=mysqli_fetch_array($res2);
+$stokKurang = ($r_data2['jumlah'] * $r_data['rencana']) - $r_data2['stok'];
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -67,7 +46,7 @@ if($res2){
   
         <!-- Hammer reload -->
           <script>
-            /*
+          /*
             setInterval(function(){
               try {
                 if(typeof ws != 'undefined' && ws.readyState == 1){return true;}
@@ -138,14 +117,12 @@ if($res2){
           <img src="assets/images/avatar-small.jpg" alt="">
         </div>
         <div class="user-name-w">
-          
-        <?php echo $_SESSION['namaUmkm']; ?> : (<?php echo $_SESSION['log_nama']; ?>) 
-        <i class="fa fa-caret-down"></i>
+          Lionel Messi <i class="fa fa-caret-down"></i>
         </div>
       </a>
       <ul class="dropdown-menu dropdown-inbar">
         <li><a href="gantipassword.php"><i class="fa fa-unlock-alt"></i> Ganti Password </a></li>
-        <li><a href="login.php?logout=1"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
+        <li><a href="#"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
       </ul>
     </div>
   </div>
@@ -204,17 +181,21 @@ if($res2){
   <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
-        <h3><i class="fa fa-bitbucket"></i><strong> Rekomendasi Beli Bahan Baku Untuk : </strong><?php echo $r_data['namaPelanggan']; ?> / <?php echo date('d - M - Y', strtotime($r_data['tanggalJual'])); ?></h3>
+        <h3><i class="fa fa-bitbucket"></i><strong> Rekomendasi Beli Bahan Baku Untuk : </strong><?php echo $r_data['nama_barang']; ?> / <?php echo $r_data['tglSpk']; ?></h3>
       </div>
       <div class="widget-content">
       <div>
-      <a href="spk.php" class="btn btn-iconed btn-default"  ><i class="fa fa-arrow-circle-o-left"></i> Kembali </a>
-      <!--<a href="#modalBB" class="btn btn-iconed btn-primary" data-toggle="modal"><i class="fa fa-plus-circle"></i> Penggunaan Bahan Baku </a>-->
+      <a href="detailRealisasiBahan.php?id=<?php echo $idSpk; ?>" class="btn btn-iconed btn-default"  ><i class="fa fa-arrow-circle-o-left"></i> Kembali </a>
       </div><br>
-      <?php 
-          $sql = "SELECT p.idSupplier as idSupplier, p.nama as namaSupplier, mn3.leadtime as leadtime, mn3.harga_beli as hargaSupplier, bb.nama as namaBB
+      <?php
+          $sql = "SELECT s.idspk, p.idSupplier as idSupplier, p.nama as namaSupplier, mn3.leadtime as leadtime, S.tgl_perencanaan as tglRencana, DATE_SUB(CURDATE(), INTERVAL - mn3.leadtime DAY) as tglSampai, mn3.harga_beli as hargaSupplier, bb.nama as namaBB, 
+            (
+              SELECT phb.`harga_beli` FROM `pemasok_has_bahanbaku` phb WHERE phb.`bahanbaku_idBB`=bb.`idBB` ORDER BY phb.`harga_beli` asc LIMIT 1
+            ) as harga_rendah
             FROM barang_has_nota_jual mn inner join barang b
               on mn.barang_idBarang = b.idBarang
+            inner join spk s
+              on b.idBarang = s.barang_idBarang
             inner join bahanbaku_has_barang mn2
               on b.idBarang = mn2.barang_idBarang
             inner join bahanbaku bb
@@ -223,21 +204,21 @@ if($res2){
               on bb.idBB = mn3.bahanbaku_idBB
             inner join pemasok p 
               on mn3.pemasok_idSupplier = p.idSupplier
-            where mn.nota_jual_idJual = $idJual
+            where mn.nota_jual_idJual = $idJual and bb.idBB = $idBB and s.idSpk = $idSpk
             GROUP BY p.idSupplier
-            order by p.nama"; 
+            order by p.nama";
+
           $result = mysqli_query($link, $sql);
           if(!$result){
               die("<br/>SQL error_log(message)r : " . $sql);
           }
-          $noAwal=0;
-          $idSuppliernya = "";
+          $hargaPemasoknya = 0;
           $namaPemasoknya = "";
+          $no=0;
           while ($row = mysqli_fetch_array($result)) {
-            $idSuppliernya = $row['idSupplier'];
             $namaPemasoknya = $row['namaSupplier'];
-            $noAwal++;
-            $no = 0;?>
+            $hargaPemasoknya= "Rp " . number_format($row['hargaSupplier'],0,',','.');
+            $no++;?>
             <form action="action_tambah.php?cmd=tambahBahanBaku" method="POST" role="form">
                   <div class="row">
                     <div class="col-md-12">
@@ -248,64 +229,45 @@ if($res2){
                       <input type="text" value="NAMA PEMASOK : <?php echo $namaPemasoknya; ?>" name="uNama" class="form-control" disabled="disabled" style="font-weight: bold">
                       </div>
                       <div class="col-md-4 text-right">
-                      <a href="#modalPilihPemasok_<?php echo $noAwal; ?>" class="btn btn-iconed btn-primary" data-toggle="modal"><i class="fa fa-shopping-cart"></i> Pilih Pemasok ini </a>
+                      <a href="#modalPilihPemasok_<?php echo $no; ?>" class="btn btn-iconed btn-primary" data-toggle="modal"><i class="fa fa-shopping-cart"></i> Pilih Pemasok ini </a>
                       </div>
                         <thead>
                           <tr>
                             <th>No</th>
-                            <th>Nama BahanBaku</th>
+                            <th>Nama Bahan Baku</th>
                             <th>Harga</th>
                             <th>Lama Kirim</th>
                           </tr>
                         </thead>
                         <tbody>
-                        <?php
-                        $sqlsql = "SELECT p.nama as namaSupplier, mn3.leadtime as leadtime, mn3.harga_beli as hargaSupplier, bb.nama as namaBB,
-                        (
-                          SELECT phb.`harga_beli` FROM `pemasok_has_bahanbaku` phb WHERE phb.`bahanbaku_idBB`=bb.`idBB` ORDER BY phb.`harga_beli` asc LIMIT 1
-                        ) as harga_rendah
-                        FROM barang_has_nota_jual mn inner join barang b
-                          on mn.barang_idBarang = b.idBarang
-                        inner join bahanbaku_has_barang mn2
-                          on b.idBarang = mn2.barang_idBarang
-                        inner join bahanbaku bb
-                          on mn2.bahanbaku_idBB = bb.idBB
-                        inner join pemasok_has_bahanbaku mn3
-                          on bb.idBB = mn3.bahanbaku_idBB
-                        inner join pemasok p 
-                          on mn3.pemasok_idSupplier = p.idSupplier
-                        where mn.nota_jual_idJual = $idJual and p.idSupplier= $idSuppliernya
-                        GROUP BY p.idSupplier, bb.nama
-                        order by p.nama";
-                        $res = mysqli_query($link, $sqlsql);
-                        if($res){
-                          while ($r = mysqli_fetch_array($res)) {
-                            $no++;
-                            $hargaSupplier= "Rp " . number_format($r['hargaSupplier'],0,',','.');
-                            ?>
                             <tr>
-                              <td><?php echo $no; ?></td>
-                              <td><?php echo $r['namaBB']; ?></td>
+                              <td>1</td>
+                              <td><?php echo $row['namaBB']; ?></td>
                               <td><?php 
-                              if($r['hargaSupplier'] == $r['harga_rendah']){
+                              if($row['hargaSupplier'] == $row['harga_rendah']){
                                 ?>
-                                <i class="fa fa-thumbs-up" style="color:blue"></i> <?php echo $hargaSupplier; ?><?php
+                                <i class="fa fa-thumbs-up" style="color:blue"></i> <?php echo $hargaPemasoknya; ?><?php
                               }
                               else{
                                 ?>
-                                <?php echo $hargaSupplier; ?><?php
+                                <?php echo $hargaPemasoknya; ?><?php
                               } 
                               ?></td>
-                              <td><?php echo $r['leadtime']; ?> hari</td>
+                              <td><?php 
+                              if($row['tglSampai'] > $row['tglRencana']){
+                                ?>
+                                <i class="fa fa-thumbs-down" style="color:red"></i> <?php echo $row['leadtime']; ?> hari<?php
+                              }
+                              else{
+                                ?>
+                                <i class="fa fa-thumbs-up" style="color:blue"> <?php echo $row['leadtime']; ?> hari</i><?php
+                              } 
+                              ?></td>
+                              </td>
                             </tr>
-                            <?php
-                          }?>
                         </tbody>
                         </table>
                         </div>
-                        <?php 
-                        }
-                        ?>
                       </div>
                     </div>
                   </div> 
@@ -317,35 +279,32 @@ if($res2){
     </div>
   </div>
   </div>
-  
+
 <?php
-  $sqlModal = "SELECT p.idSupplier as idSupplier, p.nama as namaSupplier, mn3.leadtime as leadtime, mn3.harga_beli as hargaSupplier, bb.nama as namaBB
-    FROM barang_has_nota_jual mn inner join barang b
-      on mn.barang_idBarang = b.idBarang
-    inner join bahanbaku_has_barang mn2
-      on b.idBarang = mn2.barang_idBarang
-    inner join bahanbaku bb
-      on mn2.bahanbaku_idBB = bb.idBB
-    inner join pemasok_has_bahanbaku mn3
-      on bb.idBB = mn3.bahanbaku_idBB
-    inner join pemasok p 
-      on mn3.pemasok_idSupplier = p.idSupplier
-    where mn.nota_jual_idJual = $idJual
-    GROUP BY p.idSupplier
-    order by p.nama"; 
+  $sqlModal = "SELECT p.idSupplier as idSupplier, p.nama as namaSupplier, mn3.leadtime as leadtime, mn3.harga_beli as hargaSupplier, bb.nama as namaBB, bb.nama as namaBB
+            FROM barang_has_nota_jual mn inner join barang b
+              on mn.barang_idBarang = b.idBarang
+            inner join bahanbaku_has_barang mn2
+              on b.idBarang = mn2.barang_idBarang
+            inner join bahanbaku bb
+              on mn2.bahanbaku_idBB = bb.idBB
+            inner join pemasok_has_bahanbaku mn3
+              on bb.idBB = mn3.bahanbaku_idBB
+            inner join pemasok p 
+              on mn3.pemasok_idSupplier = p.idSupplier
+            where mn.nota_jual_idJual = $idJual and bb.idBB = $idBB
+            GROUP BY p.idSupplier
+            order by p.nama";
   $resultModal = mysqli_query($link, $sqlModal);
-  if(!$resultModal){
+  if(!$result){
       die("<br/>SQL error_log(message)r : " . $sqlModal);
   }
   $no=0;
-  $noAwal=0;
-  $idSuppliernya = "";
-  $namaPemasoknya = "";
   while ($rowModal = mysqli_fetch_array($resultModal)) {
-            $noAwal++;
-    $no++;
+
+      $no++;
   ?>
-  <div class="modal fade" id="modalPilihPemasok_<?php echo $noAwal; ?>" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
+  <div class="modal fade" id="modalPilihPemasok_<?php echo $no; ?>" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="widget widget-blue">
@@ -353,22 +312,25 @@ if($res2){
           <div class="widget-controls">
             <a href="#" class="widget-control " data-dismiss="modal"><i class="fa fa-times-circle"></i></a>
           </div>
-          <h3><i class="fa fa-ok-circle"></i> Konfirmasi Pilih Pemasok : <?php echo $rowModal['namaSupplier'];?></h3>
+          <h3><i class="fa fa-ok-circle"></i>  Konfirmasi Pilih Pemasok : <?php echo $rowModal['namaSupplier'];?></h3>
         </div>
         <div class="widget-content">
           <div class="modal-body">
-            <form action="action_tambah.php?cmd=tambahNotaDariRekomen" method="POST" role="form">
+            <form action="action_tambah.php?cmd=tambahNotaDariRekomenSPK" method="POST" role="form">
               <div class="row">
                 <div class="col-md-12">
                   <div class="alert alert-warning alert-dismissable bottom-margin">
                   <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
-                  <i class="fa fa-exclamation-circle"></i> <strong>KONFIRMASI!</strong> Anda memilih pemasok : <u><?php echo $rowModal['namaSupplier'];?></u> untuk beli bahan baku darinya, <strong>dengan demikian Nota Pembelian Otomatis akan dibuat</strong>. Apakah anda yakin?
+                  <i class="fa fa-exclamation-circle"></i> <strong>KONFIRMASI!</strong> Anda memilih pemasok : <u><?php echo $rowModal['namaSupplier'];?></u> untuk beli bahan baku <u><?php echo $rowModal['namaBB'];?></u>, <strong>dengan demikian Nota Pembelian Otomatis akan dibuat</strong>. Apakah anda yakin?
                   </div>
                 </div>
                 <div class="col-md-12 text-right">
                   <input type="hidden" name="uIDSupplier" value= "<?php echo $rowModal['idSupplier']; ?>">
                   <input type="hidden" name="uIDJual" value= "<?php echo $idJual; ?>">
-                  <input type="hidden" name="uIDSPK" value= "<?php echo $idSpk; ?>">
+                  <input type="hidden" value="<?php echo $stokKurang; ?>" name="uStokKurang">
+                  <input type="hidden" value="<?php echo $idBB; ?>" name="uIDBB">
+                  <input type="hidden" value="<?php echo $idSpk; ?>" name="uIDSPK">
+                  <input type="hidden" value="<?php echo $rowModal['hargaSupplier']; ?>" name="uHargaSupplier">
                   <button class="btn btn-default" data-dismiss="modal">Batal</button>
                   <button class="btn btn-primary"> Pilih Pemasok </button>
                 </div>
@@ -381,6 +343,42 @@ if($res2){
   </div>
   </div>
 <?php } ?>
+
+<!-- NOT USED, KARENA GA PERLU HAPUS
+  <div class="modal fade" id="modalHapus_<?php echo $no; ?>" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="widget widget-blue">
+        <div class="widget-title">
+          <div class="widget-controls">
+            <a href="#" class="widget-control " data-dismiss="modal"><i class="fa fa-times-circle"></i></a>
+          </div>
+          <h3><i class="fa fa-ok-circle"></i> HAPUS = <strong><?php echo $row['nama']; ?></strong> DARI DETAIL NOTA BELI </h3>
+        </div>
+        <div class="widget-content">
+          <div class="modal-body">
+            <form action="action_hapus.php?cmd=hapusBBNota" method="POST" role="form">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="alert alert-warning alert-dismissable bottom-margin">
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
+                  <i class="fa fa-exclamation-circle"></i> <strong>Peringatan!</strong> Anda akan menghapus : <u><?php echo $row['nama'];?></u> dari detail nota beli. Apakah anda yakin?
+                  </div>
+                </div>
+                <div class="col-md-12 text-right">
+                  <input type="hidden" name="uIDBB" value= "<?php echo $row['idBB']; ?>">
+                  <input type="hidden" name="uIDBeli" value= "<?php echo $row['idBeli']; ?>">
+                  <button class="btn btn-default" data-dismiss="modal">Batal</button>
+                  <button class="btn btn-danger">Hapus Data</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>-->
 
   <div class="modal fade" id="modalValidasi" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
   <div class="modal-dialog">

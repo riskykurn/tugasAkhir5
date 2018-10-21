@@ -1,6 +1,12 @@
 <?php
 session_start();
 require 'db.php';  
+
+if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSION['login'] == '' || $_SESSION['login'] == null){
+  $_SESSION['pesan'] = "Anda Belum Login";
+  header("Location: login.php");
+  exit();
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -85,12 +91,14 @@ require 'db.php';
           <img src="assets/images/avatar-small.jpg" alt="">
         </div>
         <div class="user-name-w">
-          Lionel Messi <i class="fa fa-caret-down"></i>
+          
+        <?php echo $_SESSION['namaUmkm']; ?> : (<?php echo $_SESSION['log_nama']; ?>) 
+        <i class="fa fa-caret-down"></i>
         </div>
       </a>
       <ul class="dropdown-menu dropdown-inbar">
         <li><a href="gantipassword.php"><i class="fa fa-unlock-alt"></i> Ganti Password </a></li>
-        <li><a href="#"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
+        <li><a href="login.php?logout=1"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
       </ul>
     </div>
   </div>
@@ -127,8 +135,7 @@ require 'db.php';
     <li class='current'><a href="kerupuk.php">Kerupuk</a></li>
     <ul><li><a href="jenis.php">Jenis Kerupuk</a></li></ul>
     <li><a href="mesin.php">Mesin</a></li>
-    <li><a href="lahan.php">Sewa Lahan</a></li>
-    <li><a href="form_file_upload.html">Harga Listrik<br>(Saat ini)</a></li>
+    <li><a href="listrik.php">Tarif Listrik / KWH<br>(Saat ini)</a></li>
   </ul>
 </div>
   </div>
@@ -150,7 +157,6 @@ require 'db.php';
             <div class="widget-controls">
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
   <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-refresh" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tampilkan Ulang"><i class="fa fa-refresh"></i></a>
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
             <h3><i class="fa fa-plus-circle"></i> Tambah Kerupuk</h3>
@@ -172,7 +178,7 @@ require 'db.php';
                 </div>
                 <div class="col-md-8">
                     <div class="form-group">
-                      <label>Stok (Jumlah)</label>
+                      <label>Stok / Jumlah (Per Bal)</label>
                       <input type="number" min="0" name="uStok" class="form-control" disabled="disabled">
                       <span class="help-block">*Saat pertamakali menambah kerupuk, <b>stok tidak dapat diubah</b>. Anda harus produksi kerupuk terlebih dahulu</span>
                     </div>
@@ -209,7 +215,6 @@ require 'db.php';
             <div class="widget-controls">
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
   <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-refresh" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tampilkan Ulang"><i class="fa fa-refresh"></i></a>
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
             <h3><i class="fa fa-plus-circle"></i> Tambah Jenis Kerupuk</h3>
@@ -242,8 +247,7 @@ require 'db.php';
       <div class="widget-title">
               <div class="widget-controls">
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-refresh" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tampilkan Ulang"><i class="fa fa-refresh"></i></a>
+  <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a> 
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
         <h3><i class="fa fa-shopping-cart"></i><strong> Data Kerupuk</strong></h3>
@@ -257,7 +261,7 @@ require 'db.php';
               <th>Nama / Merek Kerupuk</th>
               <th>Jenis</th>
               <th>Stok<br>(Per bal)</th>
-              <th>Harga Jual per Bal</th>
+              <th>Harga Jual<br>(Per Bal)</th>
               <th class="text-right">Tindakan</th>
             </tr>
           </thead>
@@ -332,6 +336,7 @@ require 'db.php';
                     <input type="text" name="uNama" value= "<?php echo $row['nama']; ?>" class="form-control">
                   </div>
                 </div>
+                
                 <div class="col-md-12">
                   <div class="form-group">
                     <label>Harga Jual</label>

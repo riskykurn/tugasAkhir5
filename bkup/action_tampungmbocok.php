@@ -281,13 +281,12 @@ $idKerupuk = $_POST['idKerupuk'];
       <input type="text" name="uNamaProses" class="form-control">
     </div>
   </div>
-  <!-- sementara hidden yaaa 
   <div class="col-md-12">
     <div class="form-group">
       <label>Lama Proses (Dalam Jam)</label>
       <input type="number" min="0" name="uLamaProses" class="form-control">
     </div>
-  </div>-->
+  </div>
   <div class="col-md-12">
     <div class="form-group">
       <label> Membutuhkan Mesin </label>
@@ -334,17 +333,15 @@ $idKerupuk = $_POST['idKerupuk'];
   <table class="table table-bordered table-hover" id="sorttable">
     <thead>
       <tr style="text-align: center;font-weight: bold;">
-        <td> Urutan ke- </td>
         <td> Nama Proses </td>
-        <!-- sementara hidden yaa 
-        <td> Lama Proses (Jam)</td>-->
+        <td> Lama Proses (Jam)</td>
         <td> Menggunakan Mesin </td>
         <td> Tindakan</td>
       </tr>
     </thead>
     <tbody>
       <?php
-      $sql = "SELECT b.nama as nama_barang, p.nama as nama_proses, m.nama as nama_mesin, p.idProsesproduksi as id_produksi, p.urutan as urutan
+      $sql = "SELECT b.nama as nama_barang, p.nama as nama_proses, p.lama_proses as lama_proses, m.nama as nama_mesin, p.idProsesproduksi as id_produksi, p.urutan as urutan
       FROM barang b INNER JOIN prosesproduksi p
       on b.idBarang = p.barang_idBarang
       INNER JOIN mesin m
@@ -359,13 +356,11 @@ $idKerupuk = $_POST['idKerupuk'];
       while ($row = mysqli_fetch_array($result)) {
         ?>
         <tr style="text-align: center; cursor: pointer;">
-        <td><?php echo $row['urutan']; ?></td>
         <td>
         <?php echo $row['nama_proses']; ?>
         <input type="hidden" name="urutanId[]" value="<?php echo $row['id_produksi']; ?>">
       </td>
-      <!-- sementara hidden yaa
-      <td><?php echo $row['lama_proses']; ?></td>-->
+      <td><?php echo $row['lama_proses']; ?></td>
       <td><?php echo $row['nama_mesin']; ?></td>
       <td>
         <a href="#modalUbah_<?php echo $row['id_produksi']; ?>" class="btn btn-round btn-default btn-xs" data-toggle="modal">Ubah</a>
@@ -399,7 +394,7 @@ break;
 
 case "tabelModalProses": 
 $idKerupuk = $_POST['idKerupuk'];
-$sql = "SELECT b.nama as nama_barang, p.nama as nama_proses, m.nama as nama_mesin, p.idProsesproduksi as id_produksi, p.urutan as urutan, b.idBarang  as idKerupuk
+$sql = "SELECT b.nama as nama_barang, p.nama as nama_proses, p.lama_proses as lama_proses, m.nama as nama_mesin, p.idProsesproduksi as id_produksi, p.urutan as urutan, b.idBarang  as idKerupuk
 FROM barang b INNER JOIN prosesproduksi p
 on b.idBarang = p.barang_idBarang
 INNER JOIN mesin m
@@ -433,13 +428,12 @@ while ($row = mysqli_fetch_array($result)) {
                       <input type="text" name="uNamaProses" class="form-control" value="<?php echo $row['nama_proses']; ?>">
                     </div>
                   </div>
-                  <!-- sementara hidden ya
                   <div class="col-md-12">
                     <div class="form-group">
                       <label>Lama Proses (Dalam Jam)</label>
                       <input type="number" min="0" name="uLamaProses" class="form-control" value="<?php echo $row['lama_proses']; ?>">
                     </div>
-                  </div>-->
+                  </div>
                   <div class="col-md-12">
                     <div class="form-group">
                       <label> Membutuhkan Mesin </label>
@@ -519,33 +513,20 @@ $idJual = $_POST['idJual'];
   <label>Kerupuk</label><!--STUCK-->
   <select name="uKerupuk" class="form-control">
     <option value=""> - - KERUPUK YANG DIBELI - - </option>
-    <?php  
-    $sql = " 
-    SELECT * ,
-        (select jumlah from barang_has_nota_jual where nota_jual_idJual={$idJual} and barang_idBarang=b.idBarang ) as jumlah,
-        (select hasil_produksi from spk where nota_jual_idJual={$idJual} and barang_idBarang=b.idBarang ) as jumlah_realisasi
-        from barang b 
-        where 1=1 
-        AND idBarang in (
-            SELECT barang_idBarang 
-            from barang_has_nota_jual 
-            where nota_jual_idJual={$idJual}
-        )
-        AND idBarang not in 
-        (
-            select s.barang_idBarang
-            from spk s inner join nota_jual nj
-                on s.nota_jual_idJual = nj.idJual
-            inner join barang_has_nota_jual mn
-                on mn.nota_jual_idJual = nj.idJual
-            where s.nota_jual_idJual={$idJual}
-            AND s.deleted=0   
-            AND ( 
-                    (s.hasil_produksi >= mn.jumlah or s.hasil_produksi is null )  
-                    or 
-                    s.status=0
-                )
-          )
+    <?php 
+    $sql = "SELECT * ,
+    (select jumlah from barang_has_nota_jual where nota_jual_idJual={$idJual} and barang_idBarang=b.idBarang ) as jumlah,
+    (select hasil_produksi from spk where nota_jual_idJual={$idJual} and barang_idBarang=b.idBarang ) as jumlah_realisasi
+    from barang b 
+    where idBarang in (select barang_idBarang from barang_has_nota_jual where nota_jual_idJual={$idJual})
+    AND idBarang not in 
+    (
+        select barang_idBarang 
+          from spk 
+      where nota_jual_idJual={$idJual} 
+        AND deleted=0  
+        AND (hasil_produksi >= rencana_produksi or hasil_produksi is null )  
+      )
     ";
     $result = mysqli_query($link, $sql);
     while($rowModal = mysqli_fetch_array($result)){

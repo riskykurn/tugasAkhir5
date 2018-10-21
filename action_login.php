@@ -98,7 +98,7 @@ switch ($cmd) {
 		$username = $_POST["uName"];
 		$password = $_POST["uPass"];
 
-		$sql = "SELECT * FROM user WHERE username = '" . $username . "'";
+		$sql = "SELECT u.*, um.namaUmkm FROM user u inner join umkm um on u.umkm_idumkm=um.idUmkm WHERE username = '" . $username . "'";
 		$res = mysqli_query($link, $sql);
 		$row = mysqli_fetch_array($res);
 
@@ -109,6 +109,9 @@ switch ($cmd) {
 			if($row["username"] == $username && 
 			md5($password.$rowSalt["salt"]) == $rowSalt["password"]){
 				$_SESSION["username"] = $rowSalt["username"];
+				$_SESSION["namaUmkm"] = $rowSalt["namaUmkm"];
+				$_SESSION["log_nama"] = $rowSalt["nama"];
+				$_SESSION["umkm_idumkm"] = $rowSalt["umkm_idumkm"];
 				$_SESSION["login"] = true;
 				$_SESSION["hak_akses"] = $rowSalt["hak_akses"];
 					setcookie("login", true, time()+36000);  

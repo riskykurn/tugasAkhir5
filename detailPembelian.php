@@ -2,6 +2,12 @@
 session_start();
 require 'db.php'; 
 
+if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSION['login'] == '' || $_SESSION['login'] == null){
+  $_SESSION['pesan'] = "Anda Belum Login";
+  header("Location: login.php");
+  exit();
+}
+
 $sqlData="SELECT nb.idBeli as id, nb.tgl_beli as tgl_beli, nb.tgl_bayar as tgl_bayar, nb.status_bayar as status_bayar, nb.total_harga as total_harga, p.nama as nama, p.idSupplier as idSupplier
   from nota_beli nb inner join pemasok p
   on nb.supplier_idSupplier = p.idSupplier 
@@ -21,6 +27,8 @@ $sql2 = "SELECT nb.idBeli as idBeli, bb.idBB as idBB, bb.nama as nama, bb.harga_
 $res2= mysqli_query($link,$sql2); 
 $r_data2=mysqli_fetch_array($res2);
 
+$idBB = $r_data2['idBB'];
+
 
 ?>
 <!DOCTYPE html>
@@ -33,7 +41,7 @@ $r_data2=mysqli_fetch_array($res2);
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
   
-        <!-- Hammer reload -->
+        <!-- Hammer reload --
           <script>
             setInterval(function(){
               try {
@@ -104,12 +112,13 @@ $r_data2=mysqli_fetch_array($res2);
           <img src="assets/images/avatar-small.jpg" alt="">
         </div>
         <div class="user-name-w">
-          Lionel Messi <i class="fa fa-caret-down"></i>
+         <?php echo $_SESSION['namaUmkm']; ?> : (<?php echo $_SESSION['log_nama']; ?>)
+         <i class="fa fa-caret-down"></i>
         </div>
       </a>
       <ul class="dropdown-menu dropdown-inbar">
         <li><a href="gantipassword.php"><i class="fa fa-unlock-alt"></i> Ganti Password </a></li>
-        <li><a href="#"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
+        <li><a href="login.php?logout=1"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
       </ul>
     </div>
   </div>
@@ -166,10 +175,9 @@ $r_data2=mysqli_fetch_array($res2);
               <div class="widget-controls">
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
   <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-refresh" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tampilkan Ulang"><i class="fa fa-refresh"></i></a>
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
-        <h3><i class="fa fa-suitcase"></i></i><strong> DAFTAR PEMBELIAN : </strong><?php echo $r_data['nama']; ?> / <?php echo $r_data['tgl_beli']; ?></h3>
+        <h3><i class="fa fa-suitcase"></i></i><strong> DAFTAR PEMBELIAN : </strong><?php echo $r_data['nama']; ?> / <?php echo date('d - M - Y', strtotime($r_data['tgl_beli']));?></h3>
       </div>
       <div class="widget-content">
       <div>
@@ -184,6 +192,7 @@ $r_data2=mysqli_fetch_array($res2);
             <tr>
               <th>No</th>
               <th>Nama Bahan Baku</th>
+              <th>Lama Kirim</th>
               <th>Harga</th>
               <th>Jumlah</th>
               <th>Total</th>
@@ -192,7 +201,6 @@ $r_data2=mysqli_fetch_array($res2);
           </thead>
           <tbody>
           <?php
-          require 'db.php'; 
           $sql = "SELECT nb.idBeli as idBeli, bb.idBB as idBB, bb.nama as nama, bb.harga_beli as harga, mn.jumlah as jumlah, s.nama as satuan, nb.total_harga as total, mn.validasi as validasi, mn.harga_sekarang as harga_sekarang
             from nota_beli nb inner join nota_beli_has_bahanbaku mn
             on nb.idBeli = mn.nota_beli_idBeli
@@ -211,6 +219,14 @@ $r_data2=mysqli_fetch_array($res2);
           $subTotalFix = 0;
           $subTotal = 0;
           while ($row = mysqli_fetch_array($result)) {
+            $sqlBB = "SELECT * from
+            pemasok_has_bahanbaku 
+            where pemasok_idSupplier=$idSupplier AND bahanbaku_idBB=". $row['idBB'];
+            $leadtime=0;
+              $resultBB = mysqli_query($link, $sqlBB);
+               while ($rowBB = mysqli_fetch_array($resultBB)) {
+                $leadtime = $rowBB['leadtime'];
+               }
             $no++;
             $harga= "Rp " . number_format($row['harga_sekarang'],0,',','.');
             $total= $row['jumlah'] * $row['harga_sekarang'];
@@ -221,6 +237,7 @@ $r_data2=mysqli_fetch_array($res2);
             <tr>
               <td><?php echo $no; ?></td>
               <td><?php echo $row['nama']; ?></td>
+              <td><?php echo $leadtime; ?> Hari</td>
               <td><?php echo $harga; ?></td>
               <td><?php echo $row['jumlah']; ?> <?php echo $row['satuan']; ?></td>
               <td><?php echo $totalFix; ?></td>
@@ -233,7 +250,7 @@ $r_data2=mysqli_fetch_array($res2);
             </tr>
           <?php } ?>
             <tr>
-              <td colspan="4" style="text-align: right;"><strong> SubTotal : </strong></td>
+              <td colspan="5" style="text-align: right;"><strong> SubTotal : </strong></td>
               <td colspan="2" style="text-align: left;"> <?php echo $subTotalFix; ?></td>
             </tr>
           </tbody>
@@ -276,13 +293,19 @@ $r_data2=mysqli_fetch_array($res2);
                     <select class="form-control" name="uBB">
                     <option value=""> - - DAFTAR BAHAN BAKU - - </option>
                     <?php
-                    require 'db.php'; 
                     $sqlBB = "SELECT * from bahanbaku
                     where idBB in (SELECT bahanbaku_idBB from pemasok_has_bahanbaku where pemasok_idSupplier=$idSupplier)";
                     $resultBB = mysqli_query($link, $sqlBB);
-
                     while($rowBB = mysqli_fetch_array($resultBB)){
-                      echo '<option value= "'. $rowBB['idBB'] .'">' . $rowBB['nama'] . '</option>';
+                      $sqlLead = "SELECT * from
+                      pemasok_has_bahanbaku 
+                      where pemasok_idSupplier=$idSupplier AND bahanbaku_idBB=".$rowBB['idBB'];
+                      $leadtime=0;
+                      $resLead = mysqli_query($link, $sqlLead);
+                       while ($rowLead = mysqli_fetch_array($resLead)) {
+                        $leadtime = $rowLead['leadtime'];
+                      }
+                      echo '<option value= "'. $rowBB['idBB'] .'">' . $rowBB['nama'] . ' ( ' . $leadtime . ' Hari )' .'</option>';
                     }
                     ?>
                       </select>
@@ -298,6 +321,7 @@ $r_data2=mysqli_fetch_array($res2);
                   <input type="hidden" name="uIDBeli" value= "<?php echo $r_data['id']; ?>"> 
                   <input type="hidden" name="uNama" value= "<?php echo $r_data['nama']; ?>">
                   <input type="hidden" name="uIDSupplier" value= "<?php echo $idSupplier; ?>">
+                  <input type="hidden" name="uIDBB" value= "<?php echo $idBB; ?>">
                   <button class="btn btn-default" data-dismiss="modal">Batal</button>
                   <button class="btn btn-primary"> Tambahkan </button>
                 </div>

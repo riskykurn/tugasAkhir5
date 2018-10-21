@@ -1,6 +1,12 @@
 <?php
 session_start(); 
 require 'db.php'; 
+
+if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSION['login'] == '' || $_SESSION['login'] == null){
+  $_SESSION['pesan'] = "Anda Belum Login";
+  header("Location: login.php");
+  exit();
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -85,12 +91,14 @@ require 'db.php';
           <img src="assets/images/avatar-small.jpg" alt="">
         </div>
         <div class="user-name-w">
-          Lionel Messi <i class="fa fa-caret-down"></i>
+          
+        <?php echo $_SESSION['namaUmkm']; ?> : (<?php echo $_SESSION['log_nama']; ?>) 
+        <i class="fa fa-caret-down"></i>
         </div>
       </a>
       <ul class="dropdown-menu dropdown-inbar">
         <li><a href="gantipassword.php"><i class="fa fa-unlock-alt"></i> Ganti Password </a></li>
-        <li><a href="#"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
+        <li><a href="login.php?logout=1"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
       </ul>
     </div>
   </div>
@@ -146,7 +154,6 @@ require 'db.php';
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
   <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
-  <a href="#" class="widget-control widget-control-remove" data-toggle="tooltip" data-placement="top" title="" data-original-title="Hilangkan"><i class="fa fa-times-circle"></i></a>
 </div>
             <h3><i class="fa fa-group"></i><strong> Nota Pembelian </strong></h3>
           </div>
@@ -207,7 +214,6 @@ require 'db.php';
               <div class="widget-controls">
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
   <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-refresh" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tampilkan Ulang"><i class="fa fa-refresh"></i></a>
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
         <h3><i class="fa fa-suitcase"></i></i><strong> DAFTAR PEMBELIAN </strong></h3>
@@ -223,6 +229,7 @@ require 'db.php';
               <th>Status Bayar</th>
               <th>Tanggal Bayar</th>
               <th>Total Harga</th>
+              <th>SPK</th>
               <th>Tindakan</th>
             </tr>
           </thead>
@@ -260,7 +267,7 @@ require 'db.php';
             <tr>
               <td><?php echo $no; ?></td>
               <td><?php echo $row['nama']; ?></td>
-              <td><?php echo $row['tgl_beli']; ?></td>
+              <td><?php echo date('d - M - Y', strtotime($row['tgl_beli']));?></td>
               <td><?php 
               if($row['status_bayar']==0){
                 ?>
@@ -273,6 +280,29 @@ require 'db.php';
               ?></td>
               <td><?php echo $row['tgl_bayar']; ?></td>
               <td><?php echo $harga; ?></td>
+              <td>
+                <?php
+                $idNotaBeli = $row['id'];
+                $spk="-";
+                $sqlspk = "
+                  SELECT *
+                  FROM spk
+                  WHERE idSpk in (
+                    SELECT spk_idSpk 
+                    FROM nota_beli_has_spk 
+                    WHERE nota_beli_idBeli={$idNotaBeli}
+                  )
+                ";
+                $resspk = mysqli_query($link, $sqlspk);
+                $jml = mysqli_num_rows($resspk);
+                if($jml > 0){
+                  while($rspk = mysqli_fetch_array($resspk)){
+                    $spk="ID SPK: ". $rspk['idSpk'] . "<br> " . date('d - M - Y', strtotime($rspk['tgl_spk']));
+                  } 
+                }
+                echo $spk;
+                ?> 
+              </td>
               <td class="text-right">
                 <a href="detailPembelian.php?id=<?php echo $row['id']; ?>" class="btn btn-round btn-info btn-xs">Detail</a>
                 <a href="#modalHapus_<?php echo $row['id']; ?>" class="btn btn-round btn-danger btn-xs" data-toggle="modal">Hapus</a>
@@ -345,7 +375,7 @@ require 'db.php';
           <div class="widget-controls">
             <a href="#" class="widget-control " data-dismiss="modal"><i class="fa fa-times-circle"></i></a>
           </div>
-          <h3><i class="fa fa-ok-circle"></i> <strong>Lunasi Pembelian : </strong> <?php echo $row['nama']; ?> / <?php echo $row['tgl_beli']; ?></h3>
+          <h3><i class="fa fa-ok-circle"></i> <strong>Ubah Pembayaran : </strong> <?php echo $row['nama']; ?> / <?php echo $row['tgl_beli']; ?></h3>
         </div>
         <div class="widget-content">
           <div class="modal-body">
@@ -366,10 +396,10 @@ require 'db.php';
                   <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                 </div><br>  
                 </div>
-                <div class="col-md-12">
+                <div class="col-md-12 text-right">
                   <input type="hidden" name="uID" value= "<?php echo $row['id']; ?>">
-                  <button type="submit" class="btn btn-primary"> Ubah </button>
                   <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+                  <button type="submit" class="btn btn-primary"> Ubah </button> 
                 </div>
               </div>
             </form>

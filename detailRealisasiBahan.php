@@ -2,6 +2,12 @@
 session_start();
 require 'db.php'; 
 
+if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSION['login'] == '' || $_SESSION['login'] == null){
+  $_SESSION['pesan'] = "Anda Belum Login";
+  header("Location: login.php");
+  exit();
+}
+
 $sqlData="SELECT spk.idSpk as spk, nj.idJual as nota_jual, nj.tanggal as tanggal_nota, spk.tgl_spk as tglSpk, spk.tgl_perencanaan as tglRencana, spk.rencana_produksi as rencana, spk.status as status, p.namaPelanggan as pelanggan, b.nama as nama_barang, b.idBarang as idBarang
   FROM barang b inner join spk
     on b.idBarang = spk.barang_idBarang
@@ -14,6 +20,7 @@ $res= mysqli_query($link,$sqlData);
 $r_data=mysqli_fetch_array($res);
 $idBarang = $r_data['idBarang'];
 $idSpk = $r_data['spk'];
+$statusSpk= $r_data['status'];
 
 /* INI QUERY BOM 
 $sql2 = "SELECT b.idBarang as idBarang, bb.idBB as idBB ,b.nama as nama_barang, bb.nama as nama_bb, s.nama as satuan, mn.jumlah as jumlah
@@ -110,12 +117,14 @@ $r_data2=mysqli_fetch_array($res2);*/
           <img src="assets/images/avatar-small.jpg" alt="">
         </div>
         <div class="user-name-w">
-          Lionel Messi <i class="fa fa-caret-down"></i>
+          
+        <?php echo $_SESSION['namaUmkm']; ?> : (<?php echo $_SESSION['log_nama']; ?>) 
+        <i class="fa fa-caret-down"></i>
         </div>
       </a>
       <ul class="dropdown-menu dropdown-inbar">
         <li><a href="gantipassword.php"><i class="fa fa-unlock-alt"></i> Ganti Password </a></li>
-        <li><a href="#"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
+        <li><a href="login.php?logout=1"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
       </ul>
     </div>
   </div>
@@ -172,10 +181,9 @@ $r_data2=mysqli_fetch_array($res2);*/
               <div class="widget-controls">
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
   <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-refresh" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tampilkan Ulang"><i class="fa fa-refresh"></i></a>
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
-        <h3><i class="fa fa-bitbucket"></i><strong> PENGGUNAAN BAHAN BAKU UNTUK: </strong><?php echo $r_data['nama_barang']; ?> / <?php echo $r_data['tglSpk']; ?></h3>
+        <h3><i class="fa fa-bitbucket"></i><strong> PENGGUNAAN BAHAN BAKU UNTUK: </strong><?php echo $r_data['nama_barang']; ?> / <?php echo date('d-M-Y', strtotime($r_data['tglSpk'])); ?></h3>
       </div>
       <div class="widget-content">
       <div>
@@ -196,7 +204,6 @@ $r_data2=mysqli_fetch_array($res2);*/
           </thead>
           <tbody>
           <?php
-          require 'db.php'; 
           $sql = "SELECT s.idSpk as idSpk, bb.idBB as idBB, bb.nama as namaBB, mn.jumlah_digunakan as jumlah, mn.sisa as sisa, st.nama as satuan
                   FROM spk s inner join bahanbaku_has_spk mn
                     on s.idSpk = mn.spk_idSpk
@@ -220,7 +227,15 @@ $r_data2=mysqli_fetch_array($res2);*/
               <td><?php echo $row['jumlah']; ?> <?php echo $row['satuan']; ?></td>
               <td><?php echo $row['sisa']; ?> <?php echo $row['satuan']; ?></td>
               <td class="text-right">
-                <a href="#modalUbah_<?php echo $no; ?>" class="btn btn-round btn-default btn-xs" data-toggle="modal">Ubah</a>
+              <?php 
+                if($statusSpk == 0){
+                  ?>
+                  <a href="#modalUbah_<?php echo $no; ?>" class="btn btn-round btn-default btn-xs" data-toggle="modal">Ubah</a><?php
+                }
+                else{?>
+                  <span class="help-block" style="font-weight: bold"> *SPK ini sudah selesai* </span><?php
+                }
+              ?>
               </td> 
             </tr>
           <?php } ?>
@@ -252,7 +267,6 @@ $r_data2=mysqli_fetch_array($res2);*/
                     <input type="text"  value= "<?php echo $r_data['rencana']; ?> Bal" name="uRencanaProduksi" class="form-control" disabled="disabled">
                   </div> 
                 <?php
-                require 'db.php'; 
                 $sqlTest = "SELECT b.idBarang as idBarang, bb.idBB as idBB, bb.stok as stok, b.nama as nama_barang, bb.idBB as idBB, bb.nama as nama_bb, s.nama as satuan, mn.jumlah as jumlah
                   FROM bahanbaku bb 
                   inner join bahanbaku_has_barang mn
@@ -395,6 +409,25 @@ $r_data2=mysqli_fetch_array($res2);*/
       $r = mysqli_fetch_array($resultTest);
 
       $no++;
+      $jumlahasli = 0;
+ 
+      $sqlTest = "SELECT b.idBarang as idBarang, bb.idBB as idBB, bb.stok as stok, b.nama as nama_barang, bb.idBB as idBB, bb.nama as nama_bb, s.nama as satuan, mn.jumlah as jumlah
+        FROM bahanbaku bb 
+        inner join bahanbaku_has_barang mn
+          on bb.idBB = mn.bahanbaku_idBB
+        inner join barang b
+          on mn.barang_idBarang = b.idBarang
+        inner join satuan s
+          on bb.idSatuan = s.idSatuan
+        where b.idBarang=".$idBarang." 
+          AND mn.bahanbaku_idBB=".$row['idBB']."
+            "; 
+      $resultTest = mysqli_query($link, $sqlTest); 
+      while ($rowTest = mysqli_fetch_array($resultTest)) {
+        $idBB= $rowTest['idBB'];
+        $rencanaProduksi= $r_data['rencana']; 
+        $jumlahasli = $rowTest['jumlah'] * $rencanaProduksi;
+      } 
   ?>
   <div class="modal fade" id="modalUbah_<?php echo $no; ?>" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
   <div class="modal-dialog">
@@ -420,13 +453,19 @@ $r_data2=mysqli_fetch_array($res2);*/
                 <div class="col-md-12">
                   <div class="form-group">
                     <label>Jumlah</label>
-                    <input type="number" min="<?php echo $r['jumlah']*$r_data['rencana']; ?>" name="uJumlah" value= "<?php echo $row['jumlah']; ?>" class="form-control" placeholder="<?php echo $r['jumlah']*$r_data['rencana']; ?>">
-                    <input type="hidden" name="uJumlahAsli" value= "<?php echo $row['jumlah']; ?>" >
+                    <input type="number" min="<?php echo $r['jumlah']*$r_data['rencana']; ?>" name="uJumlah" value= "<?php echo $row['jumlah']+$row['sisa']; ?>" class="form-control" placeholder="<?php echo $r['jumlah']*$r_data['rencana']; ?>"> 
+                    <!-- JUMLAH ASLI = SISANYA -->
+                    <input type="hidden" value="<?php echo $jumlahasli; ?>" name="uJumlahAsli" >
+
+                    <!-- JUMLAH LAMA = JUMLAH SEBELUM DIUBAH -->
+                    <input type="hidden" value="<?php echo $row['jumlah']; ?>" name="uJumlahLama" >
                   </div>
                 </div>
               </div>
               <div class="text-right">
                 <input type="hidden" name="uIDSPK" value= "<?php echo $row['idSpk']; ?>">
+                <input type="hidden" name="uIDBarang" value= "<?php echo $idBarang;?>"> 
+                <input type="hidden" name="uSisaLama" value= "<?php echo $row['sisa'];?>"> 
                 <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
                 <button class="btn btn-primary">Ubah</button>
               </div>

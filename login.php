@@ -78,8 +78,8 @@ require 'db.php';
 
 <div class="all-wrapper no-menu-wrapper light-bg">
   <div class="login-logo-w">
-    <a href="index.html" class="logo">
-      <i class="fa fa-rocket"></i>
+    <a href="index.html" style="text-decoration: none">
+      <label> SI Produksi : UMKM Kerupuk Krembung </label>
     </a>
   </div>
   <div class="row">
@@ -113,6 +113,16 @@ require 'db.php';
   </div>
 </div>
 <?php
+
+  if(isset($_GET['logout'])){
+    if($_GET['logout'] == 1){
+      $_SESSION['login'] = false;
+      $_SESSION['umkm_idumkm'] = '';
+      unset($_SESSION['login']);
+      unset($_SESSION['umkm_idumkm']);
+    }
+  }
+
   if(isset($_SESSION['pesan'])){
   ?>
   <script type='text/javascript'>

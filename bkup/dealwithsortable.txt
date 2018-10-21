@@ -1,0 +1,8 @@
+1. Panggil <script>nya
+2. Tambahkan $("#sort tbody").sortable().disableSelection();
+   *dunno aku lupa itu buat apa tapi ngaruh ke tabel drag & drop nya
+3. Di tabel yang ingin kamu rubah tambahkan
+3.1. id=sort untuk tabel nya
+3.2. id=sorttable untuk kolom2nya
+4. habis diurutkan toh kamu harus nyimpen, caranya :
+5. 

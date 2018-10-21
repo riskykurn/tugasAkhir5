@@ -1,12 +1,6 @@
 <?php
 session_start(); 
 require 'db.php'; 
-
-if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSION['login'] == '' || $_SESSION['login'] == null){
-  $_SESSION['pesan'] = "Anda Belum Login";
-  header("Location: login.php");
-  exit();
-}
 ?>
 <!DOCTYPE html>
 <html>
@@ -91,20 +85,18 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
           <img src="assets/images/avatar-small.jpg" alt="">
         </div>
         <div class="user-name-w">
-          
-        <?php echo $_SESSION['namaUmkm']; ?> : (<?php echo $_SESSION['log_nama']; ?>) 
-        <i class="fa fa-caret-down"></i>
+          Lionel Messi <i class="fa fa-caret-down"></i>
         </div>
       </a>
       <ul class="dropdown-menu dropdown-inbar">
         <li><a href="gantipassword.php"><i class="fa fa-unlock-alt"></i> Ganti Password </a></li>
-        <li><a href="login.php?logout=1"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
+        <li><a href="#"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
       </ul>
     </div>
   </div>
   <a class="current logo hidden-xs" href="index.php" data-toggle="tooltip" data-placement="right" title="" data-original-title="Halaman Depan"><i class="fa fa-home"></i></a>
   <a class="menu-toggler" href="#" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Tampilkan / Hilangkan"><i class="fa fa-bars"></i></a>
-  <h1> MENU PRODUKSI : Surat Perintah Kerja</h1>
+  <h1> MENU PRODUKSI : Pembelian Bahan Baku</h1>
 </div>
   <div class="side">
   <div class="sidebar-wrapper">
@@ -153,6 +145,7 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
               <div class="widget-controls">
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
   <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
+  <a href="#" class="widget-control widget-control-refresh" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tampilkan Ulang"><i class="fa fa-refresh"></i></a>
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
       <h3><i class="fa fa-pencil"></i></i><strong> SURAT PERINTAH KERJA </strong></h3>
@@ -180,18 +173,7 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
           </thead>
           <tbody>
           <?php
-          /* QUERY LAMA SEBELUM TAU PROSES PRODUKSI DAN JADWAL PRODUKSI
           $sql = "SELECT spk.idSpk as id, nj.idJual as nota_jual, nj.tanggal as tanggal_nota, spk.tgl_spk as tglSpk, spk.tgl_perencanaan as tglRencana, spk.rencana_produksi as rencana, spk.status as status, p.namaPelanggan as pelanggan, b.nama as nama_barang, b.idBarang as idBarang, spk.tgl_mulai_real as tgl_mulai_real
-            FROM barang b inner join spk
-              on b.idBarang = spk.barang_idBarang
-            inner join nota_jual nj
-              on spk.nota_jual_idJual = nj.idJual
-            inner join pelanggan p 
-              on nj.pelanggan_idPelanggan = p.idPelanggan
-            where spk.deleted=0
-            order by spk.idSpk desc";*/
-
-            $sql = "SELECT spk.idSpk as id, nj.idJual as nota_jual, nj.tanggal as tanggal_nota, spk.tgl_spk as tglSpk, spk.tgl_perencanaan as tglRencana, spk.rencana_produksi as rencana, spk.status as status, p.namaPelanggan as pelanggan, b.nama as nama_barang, b.idBarang as idBarang, spk.tgl_mulai_real as tgl_mulai_real
             FROM barang b inner join spk
               on b.idBarang = spk.barang_idBarang
             inner join nota_jual nj
@@ -214,11 +196,11 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
           ?>
             <tr style="text-align: center;">
               <td><strong><?php echo $no; ?></strong></td>
-              <td><strong>( <?php echo $row['pelanggan']; ?> )</strong> & <?php echo date('d-M-Y', strtotime($row['tanggal_nota'])); ?> <br>
+              <td><strong>( <?php echo $row['pelanggan']; ?> )</strong> & <?php echo $row['tanggal_nota']; ?> <br>
               <a href="#modalDetailNota<?php echo $row['nota_jual']; ?>" data-toggle="modal" class="btn btn-iconed btn-round btn-info btn-xs" ><i class="fa fa-eye"></i><strong> Lihat Detail Nota </strong></a>
               </td>
-              <td><?php echo date('d-M-Y', strtotime($row['tglSpk'])); ?></td>
-              <td><?php echo date('d-M-Y', strtotime($row['tglRencana'])); ?></td>
+              <td><?php echo $row['tglSpk']; ?></td>
+              <td><?php echo $row['tglRencana']; ?></td>
               <td><?php echo $row['rencana']; ?></td>
               <td><?php echo $row['nama_barang']; echo "<br>";
               if($row['status']==0){
@@ -281,7 +263,6 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
     </div>
   </div>
   </div>
-
   <!-- QUERY UNTUK AMBIL DETAIL -->
   <?php
   $sql = "SELECT spk.idSpk as spk, nj.idJual as nota_jual, nj.tanggal as tanggal_nota, spk.tgl_spk as tglSpk, spk.tgl_perencanaan as tglRencana, spk.rencana_produksi as rencana, spk.status as status, p.namaPelanggan as pelanggan, b.nama as nama_barang, nj.status as status_nota, b.harga_jual as harga, b.idBarang as idBarang
@@ -299,7 +280,6 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
   $no=0;
   while ($row = mysqli_fetch_array($result)) {
     $no++;
-    $passingSpk = $row['spk'];
     $idNotaJual = $row['nota_jual'];
     $idBarang = $row['idBarang'];
   ?>
@@ -333,7 +313,7 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
                   <tr>
                     <td style="text-align: right;font-weight: bold;">Tanggal Pemesanan</td>
                     <td style="text-align: left;font-weight: bold;">:</td>
-                    <td> <?php echo date('d-M-Y', strtotime($row['tanggal_nota'])); ?></td>
+                    <td> <?php echo $row['tanggal_nota']; ?></td>
                   </tr>
                   <tr>
                     <td style="text-align: right;font-weight: bold;">Status Pembayaran</td>
@@ -457,8 +437,7 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
               </div>
               <div class="col-md-12 text-right">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Kembali</button>
-                <a href="detailRekomendasi.php?id=<?php echo $idNota; ?>&idSpk=<?php echo $passingSpk; ?>
-                " class="btn btn-iconed btn-primary" data-toggle="modal"><i class="fa fa-shopping-cart"></i> Beli Bahan Baku ini </a>
+                <a href="detailRekomendasi.php?id=<?php echo $idNota; ?>" class="btn btn-iconed btn-primary" data-toggle="modal"><i class="fa fa-shopping-cart"></i> Beli Bahan Baku ini </a>
               </div>
             </div>
           </div>
@@ -479,14 +458,11 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
     inner join pelanggan p 
       on nj.pelanggan_idPelanggan = p.idPelanggan
     where spk.deleted=0";
-  $resultModal = mysqli_query($link, $sqlModal);
+  $resultModal = mysqli_query($link, $sql);
   if(!$result){
       die("<br/>SQL error_log(message)r : " . $sqlModal);
   }
   $no=0;
-  $namaBBnya='';
-  $idBBnya=0;
-  $sisanya=0;
   while ($rowModal = mysqli_fetch_array($resultModal)) {
     $no++;
   ?>
@@ -572,7 +548,7 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
           <div class="widget-controls">
             <a href="#" class="widget-control " data-dismiss="modal"><i class="fa fa-times-circle"></i></a>
           </div>
-          <h3><i class="fa fa-ok-circle"></i> <strong>Detail SPK: </strong> <?php echo date('d-M-Y', strtotime($rowModal['tglSpk'])); ?></h3>
+          <h3><i class="fa fa-ok-circle"></i> <strong>Detail SPK: </strong> <?php echo $rowModal['tglSpk']; ?></h3>
         </div>
         <div class="widget-content">
           <div class="modal-body">
@@ -581,13 +557,13 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
                 <div class="col-md-12">
                 <div class="alert alert-info alert-dismissable bottom-margin">
                   <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
-                  <i class="fa fa-exclamation-circle"></i> <strong>Info!</strong> Detail SPK merupakan menu dimana anda harus mengisi realisasi tanggal mulai SPK (*guna dapat mengisi penggunaan Bahan Baku). Ketika jadwal produksi telah usai, anda dapat mengisi hasil realisasi produksi kerupuk dari SPK ini.<br><br> 
+                  <i class="fa fa-exclamation-circle"></i> <strong>Info!</strong> 
                 <?php 
                   if($rowModal['tgl_mulai_real'] != NULL){
                     ?>
                     <p><strong> Tanggal Realisasi Mulai </strong></p>
                     <div class="input-group">
-                    <input type="text" name="uMulaiReal" value="<?php echo date ('d-M-y', strtotime($rowModal['tgl_mulai_real'])); ?>" class="form-control" disabled="disabled">
+                    <input type="date" name="uMulaiReal" min="<?php echo date('Y-m-d'); ?>" value="<?php echo $rowModal['tgl_mulai_real']; ?>" class="form-control" disabled="disabled">
                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                     </div>
                     <span class="help-block" style="font-weight: bold"><i class="fa fa-thumbs-up"></i> Anda sudah memulai penjadwalan, sekarang isi penggunaan bahan baku</span><?php
@@ -606,98 +582,27 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
                     ?>
                     <p><strong> Tanggal Realisasi Selesai </strong></p>
                     <div class="input-group">
-                      <input type="text" name="uSelesaiReal" value="<?php echo date ('d-M-y', strtotime($rowModal['tgl_selesai_real'])); ?>" class="form-control" disabled="disabled">
+                      <input type="date" name="uSelesaiReal" min="<?php echo date('Y-m-d'); ?>" value="<?php echo $rowModal['tgl_selesai_real']; ?>" class="form-control" disabled="disabled">
                       <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                     </div>
                     <span class="help-block" style="font-weight: bold"><i class="fa fa-thumbs-up"></i> Penjadwalan telah selesai</span>
+                    <div class="form-group">
+                      <label>Hasil Produksi (per Bal)</label>
+                      <input type="number" min="0" name="uHasilReal" value="<?php echo $rowModal['hasil_produksi']; ?>" class="form-control" >
+                    </div> 
                     <?php
                   }
                   else{
                     ?>
                     <p><strong> Tanggal Realisasi Selesai </strong></p>
                     <div class="input-group">
-                    <input type="date" name="uSelesaiReal" min="<?php echo date('Y-m-d'); ?>" class="form-control" readonly="">
+                    <input type="date" name="uSelesaiReal" min="<?php echo date('Y-m-d'); ?>" class="form-control">
                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                    </div>
-                    <span class="help-block" style="font-weight: bold"> *Saat proses urutan terakhir selesai (diJadwal Produksi), <u>tanggal ini otomatis terisi</u></span>
-                    <?php
-                  } 
-                ?> 
-                <?php 
-                  if($rowModal['tgl_selesai_real'] != NULL AND ($rowModal['hasil_produksi'] == NULL || $rowModal['hasil_produksi'] == 0)){
-                    ?>
+                    </div><br>
                     <div class="form-group">
                       <label>Hasil Produksi (per Bal)</label>
-                      <input type="number" min="0" name="uHasilReal" value="<?php echo $rowModal['hasil_produksi']; ?>" class="form-control">
-                      <span class="help-block" style="font-weight: bold"> *Proses produksi telah usai, anda dapat mengisi hasil produksi disini </span>
-                    </div> 
-                    <?php
-                  }
-                  else if($rowModal['hasil_produksi'] != 0){
-                    ?>
-                    <div class="form-group">
-                      <label>Hasil Produksi (per Bal)</label>
-                      <input type="number" min="0" name="uHasilReal" value="<?php echo $rowModal['hasil_produksi']; ?>" class="form-control" readonly="">
-                      <span class="help-block" style="font-weight: bold"> *Proses produksi telah usai</span>
-                    </div> 
-                    <div class="form-group">
-                      <?php
-                      $sql_cekBB = "SELECT *
-                      from bahanbaku_has_spk
-                      where spk_idSpk=".$rowModal['spk']." AND sisa>0";
-                      $res_cekBB= mysqli_query($link,$sql_cekBB);
-                      $jmlAda=mysqli_num_rows($res_cekBB);
-                      if($jmlAda > 0){
-                      ?>
-                        <p class="text-center" style="font-weight: bold"> BAHAN BAKU SISA YANG DIKEMBALIKAN KE GUDANG </p>
-                        <div class="table-responsive">
-                          <table class="table table-bordered">
-                            <thead>
-                              <tr>
-                                <th>Nama Bahan Baku</th>
-                                <th>Sisa</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                            <?php
-                            $sqlBB = "SELECT s.idSpk as idSpk, bb.idBB as idBB, bb.nama as namaBB, mn.jumlah_digunakan as jumlah, mn.sisa as sisa, st.nama as satuan
-                            FROM spk s inner join bahanbaku_has_spk mn
-                              on s.idSpk = mn.spk_idSpk
-                            inner join bahanbaku bb
-                              on mn.bahanbaku_idBB = bb.idBB
-                            inner join satuan st
-                              on st.idSatuan = bb.idSatuan
-                            where s.idSpk=".$rowModal['spk']." AND mn.sisa>0";
-
-                            $resultBB = mysqli_query($link, $sqlBB);
-                            if(!$resultBB){
-                                die("<br/>SQL error_log(message)r : " . $sqlBB);
-                            }
-                            while ($rowBB = mysqli_fetch_array($resultBB)) {
-                              $namaBBnya = $rowBB['namaBB'];
-                              $idBBnya = $rowBB['idBB'];
-                              $sisanya = $rowBB['sisa'];
-                            ?>
-                              <tr>
-                                <td><?php echo $namaBBnya; ?></td>
-                                <td><?php echo $rowBB['sisa']; ?> <?php echo $rowBB['satuan']; ?></td>
-                              </tr>
-                            <?php } ?>
-                            </tbody>
-                          </table>
-                        </div>
-                      <?php
-                      }
-                      ?>
-                    </div>
-                    <?php
-                  }
-                  else{
-                    ?>
-                    <div class="form-group">
-                      <label>Hasil Produksi (per Bal)</label>
-                      <input type="number" min="0" name="uHasilReal" value="<?php echo $rowModal['hasil_produksi']; ?>" class="form-control" readonly="">
-                      <span class="help-block" style="font-weight: bold"> *Anda harus menyelesaikan produksi sampai urutan terakhir (diJadwal Produksi) untuk mengisi ini </span>
+                      <input type="number" min="0" name="uHasilReal" value="<?php echo $rowModal['hasil_produksi']; ?>" class="form-control" disabled="disabled">
+                      <span class="help-block" style="font-weight: bold"> *Anda harus menyelesaikan produksi (diJadwal Produksi) untuk mengisi ini </span>
                     </div>
                     <?php
                   } 
@@ -706,32 +611,9 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
                 </div>         
               </div>
               <div class="text-right">
-              <?php
-                $sql_cekBB = "SELECT *
-                from bahanbaku_has_spk
-                where spk_idSpk=".$rowModal['spk']." AND sisa>0";
-                $res_cekBB= mysqli_query($link,$sql_cekBB);
-                while ($row_cekBB = mysqli_fetch_array($res_cekBB)) {?>
-                <input type="hidden" name="uIDBB[]" value= "<?php echo $row_cekBB['bahanbaku_idBB']; ?>">
-                <input type="hidden" name="uSisa[]" value= "<?php echo $row_cekBB['sisa']; ?>">
-              <?php } ?>
               <input type="hidden" name="uID" value= "<?php echo $rowModal['spk']; ?>">
-              <?php 
-                if($rowModal['status'] == 1 AND ($rowModal['hasil_produksi'] == 0 || $rowModal['hasil_produksi'] == NULL)){
-                  ?>
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
-                  <button class="btn btn-primary">Ubah</button><?php
-                }
-                else if($rowModal['status'] == 1 AND ($rowModal['hasil_produksi'] > 0 || $rowModal['hasil_produksi'] != NULL)){
-                  ?>
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Kembali</button><?php
-                }
-                else{
-                  ?>
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
-                  <button class="btn btn-primary">Ubah</button><?php
-                }
-              ?>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+              <button class="btn btn-primary">Ubah</button>
               </div>
             </form>
           </div>
@@ -760,14 +642,19 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
                     <div class="input-group">
                     <input type="date" name="uTgl" value="<?php echo date('Y-m-d'); ?>" class="form-control" disabled="disabled">
                   <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                </div><br>   
+                </div><br>
+                <p><strong> Tanggal Rencana Selesai </strong></p>
+                    <div class="input-group">
+                    <input type="date" name="uRencanaSelesai" min="<?php echo date('Y-m-d'); ?>" class="form-control">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                  </div><br>    
                 </div>
                 <hr style="width: 89%; margin-top: -2%">
                 <div class="col-md-12 form-group">
                 <div class="col-md-12" style="margin-top: -2%">
                     <div class="form-group">
                       <label>Dari Nota Jual (Nama & Tanggal Pemesanan)</label><!--STUCK-->
-                      <select name="uNotaJual" class="form-control" onchange="divTampungKerupuk(this.value, '');">
+                      <select name="uNotaJual" class="form-control" onchange="divTampungKerupuk(this.value);">
                       <option value=""> - - DAFTAR NOTA JUAL - - </option>
                         <?php
                         $sql = "select nj.idJual as idJual, p.namaPelanggan as nama_pelanggan, nj.tanggal as tanggal_nota
@@ -790,22 +677,14 @@ if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSI
                       </select>
                     </div>
                 </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>Rencana Produksi (per Bal)</label>
-                    <input type="number" min="0" name="uRencanaProduksi" class="form-control">
-                    <span class="help-block" style="font-weight: bold">*Usahakan untuk tidak merencanakan produksi kurang dari jumlah pesanan</span>
-                  </div>
-                </div>
                 </div>
                 <hr style="width: 89%;">
-                <div class="col-md-12" style="margin-top: -2%;">
-                <p><strong> Tanggal Rencana Selesai </strong></p>
-                    <div class="input-group">
-                    <input type="date" name="uRencanaSelesai" min="<?php echo date('Y-m-d'); ?>" class="form-control">
-                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                  </div>
-                  <span class="help-block" style="font-weight: bold">*Tanggal perkiraan anda bisa menyelesaikan pesanan dari pelanggan diatas</span> 
+                <div class="col-md-12" style="margin-top: -2%;>
+                    <div class="form-group">
+                      <label>Rencana Produksi (per Bal)</label>
+                      <input type="number" min="0" name="uRencanaProduksi" class="form-control">
+                      <span class="help-block" style="font-weight: bold">*Usahakan untuk tidak merencanakan produksi kurang dari jumlah pesanan</span>
+                    </div>
                 </div>
                 <div class="text-right">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>

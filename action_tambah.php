@@ -296,6 +296,58 @@ case "tambahSatuan":
 	}
 break;
 
+//TAMBAH KONVERSI (MASTER)
+case "tambahKonversi":
+	$dariSatuan = $_POST['uDari'];
+	$keSatuan = $_POST['uKe'];
+	$nilai = $_POST['uNilai'];
+	$tipe = $_POST['uTipe'];
+
+	if($dariSatuan == $keSatuan)
+	{
+		$_SESSION['pesan'] = "Satuan tidak boleh sama!";
+	    header("Location: konversi.php");
+	    die();
+	}
+	else{
+		$sql = "SELECT *
+    	FROM konversi
+    	WHERE dari_satuan=".$dariSatuan." 
+    		AND ke_satuan=".$keSatuan; 
+	    $result = mysqli_query($link, $sql);  
+	    $jml = mysqli_num_rows($result);  
+	    if($jml > 0){
+	    	$_SESSION['pesan']="Perhitungan Konversi sudah ada, mohon cek lagi!";
+			header("Location: konversi.php");
+			die();
+		} 
+		else {
+			//NGECEK INPUTAN KOSONG, KALAU ELSE DI INSERT KE DB
+			if(empty($nilai)){
+			    $_SESSION['pesan'] = "Isi nilainya dahulu!";
+			    header("Location: konversi.php");
+			    die();
+		    }  
+		    else{
+				$sql="insert into konversi (dari_satuan, ke_satuan, nilai, tipe)".
+				    		"VALUES (" . $dariSatuan . ", " . $keSatuan . ", " . $nilai . ", " . $tipe . ")";
+
+			    $result= mysqli_query($link,$sql);
+			    if($result){
+			    	$_SESSION['pesan']="Berhasil menambahkan perhitungan konversi";
+			    	header('Location: konversi.php');
+			    	die();
+			    }
+			    else if(!$result){
+			    	die("SQL error_log(message)r : ".$sql);
+			    }
+			}
+		}
+	}
+
+	
+break;
+
 //TAMBAH KERUPUK
 case "tambahKerupuk":
 	$namaKerupuk = $_POST['uNama'];
@@ -581,6 +633,11 @@ case "tambahNotaBeli":
 	    header("Location: pembelian.php");
 	    die();
     }
+    else if($statusBayar == 1 AND $idPemasok > 0 AND empty($tanggalBayar)){
+	    $_SESSION['pesan'] = "Pembayaran lunas isi tanggal bayarnya!";
+	    header("Location: pembelian.php");
+	    die();
+    }
     else{
 		$sql="INSERT into nota_beli (tgl_beli,tgl_bayar,status_bayar,supplier_idSupplier,deleted) ".
 		    		"VALUES ('" . $tanggalBeli . "', '" . $tanggalBayar . "' ,'" . $statusBayar . "' , " . $idPemasok . ",0)";
@@ -677,6 +734,7 @@ break;
 case "tambahNotaDariRekomen":
 	$idPemasok = $_POST['uIDSupplier'];
 	$idJual = $_POST['uIDJual'];
+	$idSpk = $_POST['uIDSPK'];
 	$tanggalBeli = date("Y-m-d");
 
 	$sql="INSERT into nota_beli (tgl_beli,tgl_bayar,status_bayar,supplier_idSupplier,deleted) ".
@@ -694,6 +752,9 @@ case "tambahNotaDariRekomen":
 	    while ($row2 = mysqli_fetch_array($result2)) {
 	    	$idBeliBaru = $row2['nota_beli_baru'];
 	    }
+	    $sql="INSERT into nota_beli_has_spk (nota_beli_idBeli,spk_idSpk) ".
+	    		"VALUES (" . $idBeliBaru . ", " . $idSpk . ")";
+    	$result= mysqli_query($link,$sql);
 
     	$_SESSION['pesan']="Berhasil menambahkan Nota Pembelian";
     	header('Location: detailPembelian.php?id='.$idBeliBaru);
@@ -709,6 +770,7 @@ case "tambahNotaDariRekomenSPK":
 	$idPemasok = $_POST['uIDSupplier'];
 	$idJual = $_POST['uIDJual'];
 	$idBB = $_POST['uIDBB'];
+	$idSpk = $_POST['uIDSPK'];
 	$jumlahKurang = $_POST['uStokKurang'];
 	$hargaSupplier = $_POST['uHargaSupplier'];
 	$tanggalBeli = date("Y-m-d");
@@ -723,10 +785,15 @@ case "tambahNotaDariRekomenSPK":
 	            ) as nota_beli_baru
 				FROM nota_beli nb
 				where nb.deleted = 0";
+		$sql2="SELECT nb.* 
+				FROM nota_beli nb
+				where nb.deleted = 0 
+				order by idBeli desc
+				LIMIT 1";
 	    $result2= mysqli_query($link,$sql2);
 	    $idBeliBaru = 0;
 	    while ($row2 = mysqli_fetch_array($result2)) {
-	    	$idBeliBaru = $row2['nota_beli_baru'];
+	    	$idBeliBaru = $row2['idBeli'];
 	    }
 	    
 	    $sql="INSERT into nota_beli_has_bahanbaku (nota_beli_idBeli,bahanbaku_idBB,jumlah,harga_sekarang) ".
@@ -748,6 +815,10 @@ case "tambahNotaDariRekomenSPK":
 			while($row3 = mysqli_fetch_array($result3)){
 				$jmlTotalHarga=$row3['total_harga']; 
 			}
+			
+			$sql="INSERT into nota_beli_has_spk (nota_beli_idBeli,spk_idSpk) ".
+		    		"VALUES (" . $idBeliBaru . ", " . $idSpk . ")"; 
+	    	$result= mysqli_query($link,$sql);
 
 	    	$sql="UPDATE nota_beli set total_harga=". ($jmlTotalHarga)."
 				where idBeli =".$idBeliBaru;
@@ -767,7 +838,8 @@ case "tambahNotaDariRekomenSPK":
 	}
 break;
 
-//TAMBAH BOM / RESEP
+//TAMBAH PROSES HIDDEN
+/*
 case "tambahProses":
 	$idKerupuk = $_POST['uIDKerupuk'];
 	$namaProses = $_POST['uNamaProses'];
@@ -825,6 +897,65 @@ case "tambahProses":
 	    }
 	}
 break;
+*/
+
+//TAMBAH PROSES
+case "tambahProses":
+	$idKerupuk = $_POST['uIDKerupuk'];
+	$namaProses = $_POST['uNamaProses'];
+	$idMesin = $_POST['uIDMesin'];
+
+	$sqlNama = "select * from prosesproduksi where barang_idBarang =".$idKerupuk;
+	$resultNama = mysqli_query($link, $sqlNama);
+
+	//SPASI YANG DIINPUT
+	if(strlen(str_replace(" ", "", $namaProses)) < 1){
+		$_SESSION['pesan']="Nama Proses tidak boleh kosong!";
+		header("Location: prosesproduksi.php");
+		die();
+	}
+
+	//PENGECEKAN INPUT NAMA SAMA, CASE SENSITIVE, AND SPACE
+	while($row=mysqli_fetch_array($resultNama)){
+		if(strtolower(str_replace(" ", "", $row['nama'])) == strtolower(str_replace(" ", "", $namaProses)) ){
+			$_SESSION['pesan']="Nama Proses sudah ada!";
+			header("Location: prosesproduksi.php");
+			die();
+		}
+	}
+
+	//NGECEK INPUTAN KOSONG, KALAU ELSE DI INSERT KE DB
+	if(empty($namaProses)){
+	    $_SESSION['pesan'] = "Data belum lengkap!";
+	    header("Location: prosesproduksi.php");
+	    die();
+    } 
+    else{
+    	$sql2= "SELECT max(p.urutan) as urutan
+				FROM barang b inner join prosesproduksi p
+					on b.idBarang = p.barang_idBarang
+				where b.idBarang =$idKerupuk";
+		$result2= mysqli_query($link,$sql2);
+	    $urutan = 0;
+	    while ($row2 = mysqli_fetch_array($result2)) {
+	    	$urutan = $row2['urutan'];
+	    }
+	    $urutan+=1;
+	    if($result2){
+	    	$sql="insert into prosesproduksi (nama,urutan,mesin_idMesin,barang_idBarang)".
+		    		"VALUES ('" . $namaProses . "', " . $urutan . "," . $idMesin . ", " . $idKerupuk . ")";
+		    $result= mysqli_query($link,$sql);
+		    if($result){
+		    	$_SESSION['pesan']="Berhasil menambahkan Proses Produksi";
+		    	header('Location: prosesproduksi.php');
+		    	die();
+		    }
+	    }
+	    else if(!$result){
+	    	die("SQL error_log(message)r : ".$sql);
+	    }
+	}
+break;
 
 //TAMBAH SPK
 case "tambahSPK":
@@ -860,8 +991,6 @@ break;
 case "realisasiBB":
 	$idBarang = $_POST['uIDBarang'];
     $idSPK = $_POST['uIDSPK']; 
-
-	echo $idBarang . '<br>' ; 
   
  	$sqlTest = "SELECT b.idBarang as idBarang, bb.idBB as idBB ,b.nama as nama_barang, bb.nama as nama_bb, s.nama as satuan, mn.jumlah as jumlah
       FROM bahanbaku bb inner join bahanbaku_has_barang mn
@@ -911,7 +1040,6 @@ case "realisasiBB":
 		    header('Location: detailRealisasiBahan.php?id='.$idSPK);
 		    die();
 		}
- 
     }
 
  	$sqlTest = "SELECT b.idBarang as idBarang, bb.idBB as idBB ,b.nama as nama_barang, bb.nama as nama_bb, s.nama as satuan, mn.jumlah as jumlah
@@ -953,11 +1081,138 @@ case "realisasiBB":
 
     }
 
-    // echo $sql;exit();
 	$_SESSION['pesan']="Berhasil menambahkan!";
 	header('Location: detailRealisasiBahan.php?id='.$idSPK);
 	die();
 
+break;
+
+//TAMBAH PENJADWALAN PRODUKSI
+case "tambahJadwalProduksi":
+	$idBarang = $_POST['uIDBarang'];
+    $idSPK = $_POST['uIDSPK']; 
+  
+ 	$sqlTest = "SELECT b.nama as nama_barang, p.nama as nama_proses, m.nama as nama_mesin, p.idProsesproduksi as id_proses, p.urutan as urutan, m.idMesin as idMesin
+                FROM barang b INNER JOIN prosesproduksi p
+                on b.idBarang = p.barang_idBarang
+                INNER JOIN mesin m
+                on p.mesin_idMesin = m.idMesin
+                WHERE b.idBarang =$idBarang
+                order by urutan asc";
+    $resultTest = mysqli_query($link, $sqlTest); 
+    while ($rowTest = mysqli_fetch_array($resultTest)) {
+    	$idProses = $_POST['uIDProses'.$rowTest['id_proses']]; 
+    	$perkiraanMulai = $_POST['uPerkiraanMulai'.$rowTest['id_proses']];
+    	$perkiraanSelesai = $_POST['uPerkiraanSelesai'.$rowTest['id_proses']]; 
+    	$keterangan = $_POST['uKeterangan'.$rowTest['id_proses']];
+    	$biayaLain = $_POST['uBiayaLain'.$rowTest['id_proses']]; 
+    	$idMesin = $_POST['uIDMesin'.$rowTest['id_proses']]; 
+    	$namaProses = $rowTest['nama_proses'];
+
+ 
+		$lamahari        = strtotime($perkiraanSelesai) - strtotime($perkiraanMulai);
+		$selisihHari = floor($lamahari / (60 * 60 * 24))+1;
+		echo $selisihHari;
+
+    	$jamMesin = 0;
+
+		if($rowTest['idMesin']!=0){
+	    	$jamMesin = $_POST['uJamMesin'.$rowTest['id_proses']];
+			if($idMesin != 0 && ($jamMesin == null || $jamMesin == '' || $jamMesin < 1)){  
+				$_SESSION['pesan']="Jam Harus Diisi minimal 1 Jam";
+				header('Location: detailPenjadwalan.php?id='.$idSPK);
+				die();
+			} else if($idMesin != 0 && ($jamMesin > ($selisihHari * 24))){  
+				$_SESSION['pesan']="Jam Tidak Boleh melebihi waktu";
+				header('Location: detailPenjadwalan.php?id='.$idSPK);
+				die();
+			}
+	    } 
+
+    	//NGECEK INPUTAN KOSONG, KALAU ELSE DI INSERT KE DB
+		if(empty($perkiraanMulai) || empty($perkiraanSelesai)){
+		    $_SESSION['pesan'] = "Data belum lengkap!";
+		    header('Location: detailPenjadwalan.php?id='.$idSPK);
+		    die();
+	    } 	
+
+    	$sql_cekBB = "SELECT *
+    			from jadwalproduksi
+    			where spk_idSpk=$idSPK 
+    				AND prosesproduksi_idProsesproduksi=$idProses";
+    	$res_cekBB= mysqli_query($link,$sql_cekBB);
+		$jmlAda=mysqli_num_rows($res_cekBB);
+		if($jmlAda > 0){
+		    $_SESSION['pesan'] = "Anda sudah melakukan penjadwalan";
+		    header('Location: detailPenjadwalan.php?id='.$idSPK);
+		    die();
+		}
+    }
+
+ 	$sqlTest = "SELECT b.nama as nama_barang, p.nama as nama_proses, m.nama as nama_mesin, p.idProsesproduksi as id_proses, p.urutan as urutan, m.idMesin as idMesin
+                FROM barang b INNER JOIN prosesproduksi p
+                on b.idBarang = p.barang_idBarang
+                INNER JOIN mesin m
+                on p.mesin_idMesin = m.idMesin
+                WHERE b.idBarang =$idBarang
+                order by urutan asc";
+    $resultTest = mysqli_query($link, $sqlTest); 
+    while ($rowTest = mysqli_fetch_array($resultTest)) {
+    	$idProses = $_POST['uIDProses'.$rowTest['id_proses']]; 
+    	$perkiraanMulai = $_POST['uPerkiraanMulai'.$rowTest['id_proses']];
+    	$perkiraanSelesai = $_POST['uPerkiraanSelesai'.$rowTest['id_proses']]; 
+    	$keterangan = $_POST['uKeterangan'.$rowTest['id_proses']];
+    	$biayaLain = $_POST['uBiayaLain'.$rowTest['id_proses']]; 
+    	$idMesin = $_POST['uIDMesin'.$rowTest['id_proses']]; 
+    	$namaProses = $rowTest['nama_proses'];
+    	if($biayaLain == NULL){
+			$biayaLain = 0; 
+		}
+
+
+
+    	//NGECEK INPUTAN KOSONG, KALAU ELSE DI INSERT KE DB
+		if(empty($perkiraanMulai) || empty($perkiraanSelesai)){
+		    $_SESSION['pesan'] = "Data belum lengkap!";
+		    header('Location: detailPenjadwalan.php?id='.$idSPK);
+		    die();
+	    }
+    	$sql="INSERT INTO jadwalproduksi(tgl_mulai, tgl_selesai, keterangan, biaya_lain, status_mesin, listrik_idListrik, spk_idSPK, prosesproduksi_idProsesproduksi)".
+    		"VALUES ('". $perkiraanMulai . "', '" . $perkiraanSelesai . "', '" . $keterangan . "', " . $biayaLain . ", " . $idMesin . " , 1, " . $idSPK . ", " . $idProses . ")";
+    	$result= mysqli_query($link,$sql);
+    }
+
+	$_SESSION['pesan']="Berhasil menambahkan Jadwal Produksi!";
+	header('Location: detailPenjadwalan.php?id='.$idSPK);
+	die();
+
+break;
+
+//// TAMBAH DETAIL KARYAWAN
+case "tambahDetailKaryawan":
+	$idKaryawan = $_POST['uIDKaryawan'];
+	$idJadwal = $_POST['uIDJadwal'];
+	$catatan = $_POST['uCatatan'];
+	
+	//NGECEK INPUTAN KOSONG, KALAU ELSE DI INSERT KE DB
+	if(empty($idKaryawan)){
+	    $_SESSION['pesan'] = "Pilih nama karyawan dahulu!";
+	    header("Location: detailKaryawan.php?id=".$idJadwal);
+	    die();
+    }
+    else{
+		$sql="INSERT into tenagakerja_has_jadwalproduksi (tenagakerja_idTenagakerja,jadwalproduksi_idJadwalproduksi,catatan) ".
+		    		"VALUES (" . $idKaryawan . ", " . $idJadwal . ", '" . $catatan . "')";
+
+	    $result= mysqli_query($link,$sql);
+	    if($result){
+	    	header("Location: detailKaryawan.php?id=".$idJadwal);
+	    	die();
+	    }
+	    else if(!$result){
+	    	die("SQL error_log(message)r : ".$sql);
+	    }
+	}
 break;
 }
 ?>

@@ -24,7 +24,7 @@ case 'hapusPemasok':
   	}
 break;
 
-//HAPUS DETAIL PEMASOK
+////HAPUS DETAIL PEMASOK
 case 'hapusDetailPemasok':
 	$idPemasok = $_POST['uIDSupplier'];
 	$idBB = $_POST['uIDBB'];
@@ -244,6 +244,22 @@ case 'hapusProsesProduksi':
     if($result){
 		$_SESSION['pesan']="Berhasil menghapus data proses produksi!";
 		header("Location: prosesproduksi.php");
+		die();
+	}
+	else if(!$result){
+       die("SQL error_log(message)r : ".$sql);
+  	}
+break;
+
+////HAPUS DETAIL PEMASOK
+case 'hapusDetailKaryawan':
+	$idKaryawan = $_POST['uIDKaryawan'];
+	$idJadwal = $_POST['uIDJadwal'];
+	
+	$sql = "delete from tenagakerja_has_jadwalproduksi where tenagakerja_idTenagakerja =" . $idKaryawan . " AND jadwalproduksi_idJadwalproduksi  =".$idJadwal;
+    $result = mysqli_query($link, $sql);
+    if($result){
+		header("Location: detailKaryawan.php?id=".$idJadwal);
 		die();
 	}
 	else if(!$result){

@@ -1,6 +1,12 @@
 <?php
 session_start();
 require 'db.php';  
+
+if($_SESSION['umkm_idumkm'] == '' || $_SESSION['umkm_idumkm'] == null || $_SESSION['login'] == '' || $_SESSION['login'] == null){
+  $_SESSION['pesan'] = "Anda Belum Login";
+  header("Location: login.php");
+  exit();
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -85,12 +91,14 @@ require 'db.php';
           <img src="assets/images/avatar-small.jpg" alt="">
         </div>
         <div class="user-name-w">
-          Lionel Messi <i class="fa fa-caret-down"></i>
+          
+        <?php echo $_SESSION['namaUmkm']; ?> : (<?php echo $_SESSION['log_nama']; ?>) 
+        <i class="fa fa-caret-down"></i>
         </div>
       </a>
       <ul class="dropdown-menu dropdown-inbar">
         <li><a href="gantipassword.php"><i class="fa fa-unlock-alt"></i> Ganti Password </a></li>
-        <li><a href="#"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
+        <li><a href="login.php?logout=1"><i class="fa fa-power-off"></i> Keluar Dari Sistem </a></li>
       </ul>
     </div>
   </div>
@@ -155,7 +163,7 @@ require 'db.php';
                 <div class="col-md-12">
                 <div class="alert alert-warning alert-dismissable bottom-margin">
                   <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                  <i class="fa fa-exclamation-circle"></i><strong> Pertama, </strong> Pilih terlebih dahulu resep / komposisi dari kerupuk anda dibawah ini.
+                  <i class="fa fa-exclamation-circle"></i><strong> Pertama, </strong> Pilih terlebih dahulu kerupuk dibawah ini untuk dibuatkan proses produksinya.
                   </div>
                   <div class="form-group">
                     <label>Daftar Kerupuk</label>
@@ -174,7 +182,8 @@ require 'db.php';
                 </div>
               </div>
               <div class="text-right">
-              <button type="button" onclick="tambahProses($('#uKerupuk').val())" class="btn btn-iconed btn-primary"><i class="fa fa-plus-circle"></i> Isi Proses Produksi </button>
+              <button type="button" onclick="tambahProses($('#uKerupuk').val())" class="btn btn-iconed btn-primary"><i class="fa fa-plus-circle"></i> Tambah Proses Produksi </button>
+              <span class="help-block" >*Jika proses produksi masih kosong / kurang, tekan tombol ini*</span>
               </div>
             <!--</form>-->
           </div>
@@ -187,7 +196,6 @@ require 'db.php';
             <div class="widget-controls">
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
   <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-refresh" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tampilkan Ulang"><i class="fa fa-refresh"></i></a>
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
             <h3><i class="fa fa-plus-circle"></i> Mengisikan Proses Produksi Kerupuk </h3>
@@ -205,7 +213,6 @@ require 'db.php';
               <div class="widget-controls">
   <a href="#" class="widget-control widget-control-full-screen" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perbesar Tampilan"><i class="fa fa-expand"></i></a>
   <a href="#" class="widget-control widget-control-full-screen widget-control-show-when-full" data-toggle="tooltip" data-placement="left" title="" data-original-title="Kecilkan Tampilan"><i class="fa fa-expand"></i></a>
-  <a href="#" class="widget-control widget-control-refresh" data-toggle="tooltip" data-placement="top" title="" data-original-title="Tampilkan Ulang"><i class="fa fa-refresh"></i></a>
   <a href="#" class="widget-control widget-control-minimize" data-toggle="tooltip" data-placement="top" title="" data-original-title="Perkecil / Perbesar"><i class="fa fa-chevron-down"></i></a>
 </div>
         <h3><i class="fa fa-dropbox"></i><strong> URUTAN PROSES PRODUKSI DARI KERUPUK </strong></h3>
@@ -224,6 +231,37 @@ require 'db.php';
 
 <div id="tabelModalProses">
  
+</div>
+
+<div class="modal fade" id="modalInfo" tabindex="-1" role="dialog" aria-labelledby="modalFormStyle1Label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="widget widget-blue">
+          <div class="widget-title">
+            <div class="widget-controls">
+              <a href="#" class="widget-control " data-dismiss="modal"><i class="fa fa-times-circle"></i></a>
+            </div>
+            <h3><i class="fa fa-info-circle"></i><strong>Informasi Mengenai Urutan Proses</strong></h3>
+          </div>
+          <div class="widget-content">
+            <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="alert alert-warning alert-dismissable bottom-margin">
+                      <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
+                      <i class="fa fa-exclamation-circle"></i> <strong>Info!</strong> Urutan proses produksi dimulai dari atas hingga akhir. Untuk melakukan pengurutan proses produksi anda dapat melakukan dengan cara: <strong>Drag / Geser</strong> kolom dari data proses produksi didalam tabel. Setelah urutan dirasa benar, jangan lupa klik <strong> Simpan Urutan</strong><br>
+                      <span class="help-block" style="color: red">*Apabila tidak bisa drag / geser, tekan menu 'Proses Produksi' dari panel kiri untuk melakukan penyegaran halaman*</span>
+                    </div>
+                  </div>
+                  <div class="col-md-12 text-right">
+                    <button class="btn btn-primary" data-dismiss="modal">Mengerti</button>
+                  </div>
+                </div>
+            </div>
+          </div>
+        </div>
+    </div>
+  </div>
 </div>
 <?php
   if(isset($_SESSION['pesan'])){
